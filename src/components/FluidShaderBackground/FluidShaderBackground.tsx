@@ -32,59 +32,57 @@ const FRAGMENT_SHADER_SOURCE = `
     return length(pa - ba * h);
   }
 
-  // Cubic Bezier point evaluation
-  vec2 getCubicBezier(float t, vec2 p0, vec2 p1, vec2 p2, vec2 p3) {
-    float mt = 1.0 - t;
-    float mt2 = mt * mt;
-    float mt3 = mt2 * mt;
-    float t2 = t * t;
-    float t3 = t2 * t;
-    return mt3 * p0 + 3.0 * mt2 * t * p1 + 3.0 * mt * t2 * p2 + t3 * p3;
+  // Rotated Figure-8 point generator
+  vec2 getFigure8Point(float theta, float phi, float A, float B) {
+    float x_base = A * sin(theta);
+    float y_base = B * sin(2.0 * theta);
+    
+    float cos_p = cos(phi);
+    float sin_p = sin(phi);
+    return vec2(
+      x_base * cos_p - y_base * sin_p,
+      x_base * sin_p + y_base * cos_p
+    );
   }
 
-  // Distance to Cubic Bezier curve using 8 unrolled segments
-  float distToCubicBezier(vec2 p, vec2 p0, vec2 p1, vec2 p2, vec2 p3, float startThick, float endThick, float k_blend) {
+  // Distance to a single Figure-8 stroke using 6 unrolled segments
+  float distToFigure8Stroke(vec2 p, float phi, float phase, float A, float B, float startThick, float k_blend, float t) {
     float d = 100.0;
-    vec2 p_prev = p0;
     
-    // Segment 1 (t = 0.125)
-    vec2 p_curr = getCubicBezier(0.125, p0, p1, p2, p3);
-    d = smin(d, distSegment(p, p_prev, p_curr) - mix(startThick, endThick, 0.125), k_blend);
+    float omega = 0.28; // Speed of motion (slow, majestic movement)
+    float L = 1.65;     // Sweepy stroke length (sweet-spot for trailing fade visibility)
+    float theta0 = omega * t + phase;
+    
+    vec2 p_prev = getFigure8Point(theta0, phi, A, B);
+    
+    // Segment 1 (u = 0.167)
+    vec2 p_curr = getFigure8Point(theta0 - 0.167 * L, phi, A, B);
+    d = smin(d, distSegment(p, p_prev, p_curr) - startThick * pow(1.0 - 0.167, 1.5), k_blend);
     p_prev = p_curr;
     
-    // Segment 2 (t = 0.25)
-    p_curr = getCubicBezier(0.25, p0, p1, p2, p3);
-    d = smin(d, distSegment(p, p_prev, p_curr) - mix(startThick, endThick, 0.25), k_blend);
+    // Segment 2 (u = 0.333)
+    p_curr = getFigure8Point(theta0 - 0.333 * L, phi, A, B);
+    d = smin(d, distSegment(p, p_prev, p_curr) - startThick * pow(1.0 - 0.333, 1.5), k_blend);
     p_prev = p_curr;
     
-    // Segment 3 (t = 0.375)
-    p_curr = getCubicBezier(0.375, p0, p1, p2, p3);
-    d = smin(d, distSegment(p, p_prev, p_curr) - mix(startThick, endThick, 0.375), k_blend);
+    // Segment 3 (u = 0.500)
+    p_curr = getFigure8Point(theta0 - 0.500 * L, phi, A, B);
+    d = smin(d, distSegment(p, p_prev, p_curr) - startThick * pow(1.0 - 0.500, 1.5), k_blend);
     p_prev = p_curr;
     
-    // Segment 4 (t = 0.5)
-    p_curr = getCubicBezier(0.5, p0, p1, p2, p3);
-    d = smin(d, distSegment(p, p_prev, p_curr) - mix(startThick, endThick, 0.5), k_blend);
+    // Segment 4 (u = 0.667)
+    p_curr = getFigure8Point(theta0 - 0.667 * L, phi, A, B);
+    d = smin(d, distSegment(p, p_prev, p_curr) - startThick * pow(1.0 - 0.667, 1.5), k_blend);
     p_prev = p_curr;
     
-    // Segment 5 (t = 0.625)
-    p_curr = getCubicBezier(0.625, p0, p1, p2, p3);
-    d = smin(d, distSegment(p, p_prev, p_curr) - mix(startThick, endThick, 0.625), k_blend);
+    // Segment 5 (u = 0.833)
+    p_curr = getFigure8Point(theta0 - 0.833 * L, phi, A, B);
+    d = smin(d, distSegment(p, p_prev, p_curr) - startThick * pow(1.0 - 0.833, 1.5), k_blend);
     p_prev = p_curr;
     
-    // Segment 6 (t = 0.75)
-    p_curr = getCubicBezier(0.75, p0, p1, p2, p3);
-    d = smin(d, distSegment(p, p_prev, p_curr) - mix(startThick, endThick, 0.75), k_blend);
-    p_prev = p_curr;
-    
-    // Segment 7 (t = 0.875)
-    p_curr = getCubicBezier(0.875, p0, p1, p2, p3);
-    d = smin(d, distSegment(p, p_prev, p_curr) - mix(startThick, endThick, 0.875), k_blend);
-    p_prev = p_curr;
-    
-    // Segment 8 (t = 1.0)
-    p_curr = getCubicBezier(1.0, p0, p1, p2, p3);
-    d = smin(d, distSegment(p, p_prev, p_curr) - mix(startThick, endThick, 1.0), k_blend);
+    // Segment 6 (u = 1.000)
+    p_curr = getFigure8Point(theta0 - 1.000 * L, phi, A, B);
+    d = smin(d, distSegment(p, p_prev, p_curr) - startThick * pow(1.0 - 1.000, 1.5), k_blend);
     
     return d;
   }
@@ -99,74 +97,41 @@ const FRAGMENT_SHADER_SOURCE = `
     // 2. Define breathing cycle biased to keep the strokes extended outside the X longer
     float cycle = 0.88 + 0.12 * sin(uTime * 0.35);
 
-    // 3. Smooth wiggling branch offsets (restored to original nice size)
-    float speed1 = 0.5;
-    float speed2 = 0.7;
-    float speed3 = 0.9;
-    float t = uTime;
-
-    // Upper branch loops (Smooth figure-8 style outward flow)
-    vec2 upper_offset1 = vec2(
-      0.22 * sin(t * speed1),
-      0.24 * cos(t * speed1 * 0.8)
-    );
-    vec2 upper_offset2 = vec2(
-      0.20 * sin(t * speed2 + 0.5),
-      0.14 * cos(t * speed2 * 0.9 + 0.5)
-    );
-    vec2 upper_offset3 = vec2(
-      0.14 * sin(t * speed3 + 1.0),
-      0.08 * cos(t * speed3 * 1.1 + 1.0)
-    );
-
-    // Lower branch loops (Smooth figure-8 style outward flow)
-    vec2 lower_offset1 = vec2(
-      0.22 * cos(t * speed1 * 0.9),
-      -0.24 * sin(t * speed1 * 0.85)
-    );
-    vec2 lower_offset2 = vec2(
-      0.20 * cos(t * speed2 * 1.05 + 0.8),
-      -0.14 * sin(t * speed2 * 0.95 + 0.8)
-    );
-    vec2 lower_offset3 = vec2(
-      0.14 * cos(t * speed3 * 0.9 + 1.2),
-      -0.08 * sin(t * speed3 * 1.1 + 1.2)
-    );
-
-    vec2 base = vec2(0.0, 0.0);
-    
-    // Build hierarchical joint chains exactly as the original wiggling
-    vec2 p_up1 = base + upper_offset1 * cycle;
-    vec2 p_up2 = p_up1 + upper_offset2 * cycle;
-    vec2 p_up3 = p_up2 + upper_offset3 * cycle;
-
-    vec2 p_down1 = base + lower_offset1 * cycle;
-    vec2 p_down2 = p_down1 + lower_offset2 * cycle;
-    vec2 p_down3 = p_down2 + lower_offset3 * cycle;
-
-    // Segment thickness (Sweet-spot thickness: not too bulky, not too thin)
-    float t1 = 0.023 * cycle;
-    float t3 = 0.008 * cycle;
+    // 3. Setup thickness parameters (Sweet-spot thickness: not too bulky, not too thin)
+    float t1 = 0.029 * cycle;
     float k_blend = 0.030 * cycle;
 
-    // 4. Evaluate Right Upper/Lower branches using cubic Bezier curves over the joint chain
-    float d_right_up = distToCubicBezier(p, base, p_up1, p_up2, p_up3, t1, t3, k_blend);
-    float d_right_down = distToCubicBezier(p, base, p_down1, p_down2, p_down3, t1, t3, k_blend);
-    float d_right = smin(d_right_up, d_right_down, k_blend);
+    // 4. Evaluate 6 desynchronized strokes wiggling along figure-8 loops
+    float d = 100.0;
 
-    // 5. Evaluate Left Upper/Lower branches by mirroring the X coordinate
-    vec2 p_left = vec2(-p.x, p.y);
-    float d_left_up = distToCubicBezier(p_left, base, p_up1, p_up2, p_up3, t1, t3, k_blend);
-    float d_left_down = distToCubicBezier(p_left, base, p_down1, p_down2, p_down3, t1, t3, k_blend);
-    float d_left = smin(d_left_up, d_left_down, k_blend);
+    // Stroke 1: Loop 1 (phi = 0.0 - horizontal), phase = 0.0 (goes further, oval/elongated)
+    float d1 = distToFigure8Stroke(p, 0.0, 0.0, 0.58, 0.11, t1, k_blend, uTime);
+    d = smin(d, d1, k_blend);
 
-    // 6. Merge left and right smoothly
-    float d = smin(d_right, d_left, k_blend);
+    // Stroke 2: Loop 1 (phi = 0.0 - horizontal), phase = 3.14159 + 0.5 (opposite direction, staggered) (goes further, oval/elongated)
+    float d2 = distToFigure8Stroke(p, 0.0, 3.14159 + 0.5, 0.58, 0.11, t1, k_blend, uTime);
+    d = smin(d, d2, k_blend);
 
-    // 7. Soft Glow Falloff - Balanced decay for a gorgeous, visible electric glow with a soft halo
+    // Stroke 3: Loop 2 (phi = 1.0472 - 60 degrees up-right/down-left), phase = 1.0 (oval/elongated)
+    float d3 = distToFigure8Stroke(p, 1.0472, 1.0, 0.44, 0.09, t1, k_blend, uTime);
+    d = smin(d, d3, k_blend);
+
+    // Stroke 4: Loop 2 (phi = 1.0472 - 60 degrees up-right/down-left), phase = 3.14159 + 1.5 (oval/elongated)
+    float d4 = distToFigure8Stroke(p, 1.0472, 3.14159 + 1.5, 0.44, 0.09, t1, k_blend, uTime);
+    d = smin(d, d4, k_blend);
+
+    // Stroke 5: Loop 3 (phi = 2.0944 - 120 degrees up-left/down-right), phase = 2.0 (oval/elongated)
+    float d5 = distToFigure8Stroke(p, 2.0944, 2.0, 0.44, 0.09, t1, k_blend, uTime);
+    d = smin(d, d5, k_blend);
+
+    // Stroke 6: Loop 3 (phi = 2.0944 - 120 degrees up-left/down-right), phase = 3.14159 + 2.5 (oval/elongated)
+    float d6 = distToFigure8Stroke(p, 2.0944, 3.14159 + 2.5, 0.44, 0.09, t1, k_blend, uTime);
+    d = smin(d, d6, k_blend);
+
+    // 5. Soft Glow Falloff
     float glow = exp(-max(d, 0.0) * 16.0);
 
-    // 8. Colors mapping - Perfectly matched to the X logo stops (Rich electric purples/lavenders)
+    // 6. Colors mapping - Perfectly matched to the X logo stops (Rich electric purples/lavenders)
     vec3 colDeepPurple = vec3(0.09, 0.00, 0.23); // #16003b (Deep indigo/purple glow)
     vec3 colPurple     = vec3(0.32, 0.00, 0.78); // #5200c7 (Royal electric violet)
     vec3 colBright     = vec3(0.47, 0.00, 1.00); // #7801ff (Vibrant electric purple)
@@ -193,7 +158,7 @@ const FRAGMENT_SHADER_SOURCE = `
     finalColor = mix(finalColor, dynamicBright, mBright);
     finalColor = mix(finalColor, dynamicCyan, mCyan);
 
-    // 9. Add film grain scaled by alpha
+    // 7. Add film grain scaled by alpha
     float grain = (fract(sin(dot(vUv + uTime * 0.005, vec2(12.9898, 78.233))) * 43758.5453) - 0.5) * 0.026;
     finalColor += vec3(grain) * alpha;
 

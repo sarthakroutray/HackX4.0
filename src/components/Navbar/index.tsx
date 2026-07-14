@@ -17,26 +17,23 @@ export default function Navbar() {
     { label: "Contact", href: "#contact" },
   ];
 
-  // Animation variants
+  // Wipe animation
   const menuVariants = {
     initial: {
-      opacity: 0,
-      scale: 1.05,
+      y: "-100%",
     },
     animate: {
-      opacity: 1,
-      scale: 1,
+      y: "0%",
       transition: {
-        duration: 0.6,
-        ease: [0.25, 1, 0.5, 1], // easeOutQuart
+        duration: 0.95,
+        ease: [0.76, 0, 0.24, 1], 
       },
     },
     exit: {
-      opacity: 0,
-      scale: 1.05,
+      y: "-100%",
       transition: {
-        duration: 0.45,
-        ease: [0.25, 1, 0.5, 1],
+        duration: 0.8,
+        ease: [0.76, 0, 0.24, 1],
       },
     },
   };
@@ -46,7 +43,7 @@ export default function Navbar() {
     animate: {
       transition: {
         staggerChildren: 0.08,
-        delayChildren: 0.15,
+        delayChildren: 0.5, 
       },
     },
     exit: {
@@ -89,7 +86,7 @@ export default function Navbar() {
       opacity: 1,
       y: 0,
       transition: {
-        delay: 0.4,
+        delay: 0.75, 
         duration: 0.5,
         ease: "easeOut",
       },
@@ -104,7 +101,6 @@ export default function Navbar() {
     },
   };
 
-  // Hover state for link dimming effect
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   return (
@@ -132,7 +128,7 @@ export default function Navbar() {
             animate="animate"
             exit="exit"
             style={{
-              background: "radial-gradient(ellipse at center, rgba(120, 1, 255, 0.35) 0%, rgba(60, 0, 130, 0.25) 50%, #08010F 100%)",
+              background: "radial-gradient(ellipse at center, rgba(192, 118, 236, 0.42) 0%, rgba(162, 35, 237, 0.28) 45%, rgba(87, 44, 230, 0.15) 75%, #08010F 100%)",
               backgroundColor: "#08010F",
             }}
             className="fixed inset-0 w-screen h-screen z-50 flex flex-col justify-between px-6 py-8 md:px-12 md:py-12 select-none overflow-hidden"
@@ -178,7 +174,7 @@ export default function Navbar() {
                           }}
                           transition={{
                             duration: 0.45,
-                            ease: [0.25, 1, 0.5, 1], // easeOutQuart
+                            ease: [0.25, 1, 0.5, 1], 
                           }}
                           className="origin-center"
                         >
@@ -208,10 +204,10 @@ export default function Navbar() {
                 Contact us
               </span>
               <a
-                href="mailto:firstcontact@fromanother.love"
+                href="mailto:HACKXMUJ@GMAIL.COM"
                 className="text-[#F9F6F0] text-xs md:text-sm font-sans tracking-wide hover:opacity-75 transition-opacity border-b border-[#F9F6F0] pb-0.5"
               >
-                firstcontact@fromanother.love
+                HACKXMUJ@GMAIL.COM
               </a>
             </motion.div>
           </motion.div>

@@ -2,13 +2,17 @@
 
 import React, { useEffect, useState } from "react";
 import styles from "./Footer.module.css";
+import { usePathname } from "next/navigation";
 
 export default function Footer() {
+  const pathname = usePathname();
   const [year, setYear] = useState("");
 
   useEffect(() => {
     setYear(new Date().getFullYear().toString());
   }, []);
+
+  if (pathname === "/stats" || pathname === "/sdg") return null;
 
   return (
     <footer className={styles["site-footer"]}>

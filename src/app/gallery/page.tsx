@@ -2,7 +2,6 @@
 
 import { AnimatePresence, motion, useScroll, useVelocity, useTransform, useSpring, useMotionValue } from "framer-motion";
 import { useState, useEffect } from "react";
-import { ReactLenis } from 'lenis/react';
 import WaterRippleImage from "@/components/WaterRippleImage";
 
 const PROJECTS = [
@@ -178,7 +177,6 @@ export default function Home() {
   ]);
 
   return (
-    <ReactLenis root>
     <main className="min-h-screen overflow-x-clip bg-[#051236] text-[#f3f0e6]">
       <motion.div
         className="fixed bottom-0 left-0 top-0 z-50 w-1 origin-top bg-[#faebac]"
@@ -275,6 +273,5 @@ export default function Home() {
         </div>
       </section>
     </main>
-    </ReactLenis>
   );
 }

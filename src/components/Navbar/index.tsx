@@ -1,11 +1,143 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import gsap from "gsap";
+import { usePathname } from "next/navigation";
 
 export default function Navbar() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const hoverTimelineRef = useRef<gsap.core.Timeline | null>(null);
+
+  const handleMouseEnter = () => {
+    const lines = buttonRef.current?.querySelectorAll("span");
+    if (!lines || lines.length < 2) return;
+
+    // Kill any active hover animations and timelines
+    hoverTimelineRef.current?.kill();
+    gsap.killTweensOf(lines);
+
+    const tl = gsap.timeline();
+    hoverTimelineRef.current = tl;
+
+    if (isOpen) {
+      // Premium diagonal scissor slide-out-in (the cross "builds" itself)
+      tl.to(lines[0], { x: -24, y: -24, opacity: 0, duration: 0.2, ease: "power2.in" }, 0)
+        .to(lines[1], { x: 24, y: -24, opacity: 0, duration: 0.2, ease: "power2.in" }, 0)
+        // Teleport to opposite diagonal corners
+        .set(lines[0], { x: 24, y: 24 })
+        .set(lines[1], { x: -24, y: 24 })
+        // Slide back to center from opposite corners
+        .to(lines[0], { x: 0, y: 0, opacity: 1, duration: 0.25, ease: "power2.out" }, ">")
+        .to(lines[1], { x: 0, y: 0, opacity: 1, duration: 0.25, ease: "power2.out" }, "<");
+    } else {
+      // Top line slides right (135%), bottom line slides left (-135%)
+      tl.to(lines[0], { x: "135%", duration: 0.2, ease: "power2.in" }, 0)
+        .to(lines[1], { x: "-135%", duration: 0.2, ease: "power2.in" }, 0)
+        // Teleport to opposite sides
+        .set(lines[0], { x: "-135%" })
+        .set(lines[1], { x: "135%" })
+        // Slide back to center from opposite sides
+        .to(lines[0], { x: "0%", duration: 0.25, ease: "power2.out" }, ">")
+        .to(lines[1], { x: "0%", duration: 0.25, ease: "power2.out" }, "<");
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (!isOpen) return;
+    const lines = buttonRef.current?.querySelectorAll("span");
+    if (!lines || lines.length < 2) return;
+
+    hoverTimelineRef.current?.kill();
+    gsap.killTweensOf(lines);
+    // Smoothly slide back to the base cross state (45deg / -45deg)
+    gsap.to(lines[0], { x: 0, y: 0, rotation: 45, opacity: 1, duration: 0.35, ease: "power2.out" });
+    gsap.to(lines[1], { x: 0, y: 0, rotation: -45, opacity: 1, duration: 0.35, ease: "power2.out" });
+  };
+
+  const isInitialRender = useRef(true);
+
+  // Synchronized state transformations
+  useEffect(() => {
+    const lines = buttonRef.current?.querySelectorAll("span");
+    if (!lines || lines.length < 2) return;
+
+    hoverTimelineRef.current?.kill();
+    gsap.killTweensOf(lines);
+
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      gsap.set(lines[0], { y: -4, rotation: 0, x: 0, opacity: 1 });
+      gsap.set(lines[1], { y: 4, rotation: 0, x: 0, opacity: 1 });
+      return;
+    }
+
+    if (isOpen) {
+      gsap.to(lines[0], {
+        y: 0,
+        rotation: 45,
+        x: 0,
+        opacity: 1,
+        duration: 0.35,
+        ease: "power2.out"
+      });
+      gsap.to(lines[1], {
+        y: 0,
+        rotation: -45,
+        x: 0,
+        opacity: 1,
+        duration: 0.35,
+        ease: "power2.out"
+      });
+    } else {
+      gsap.to(lines[0], {
+        y: -4,
+        rotation: 0,
+        x: 0,
+        opacity: 1,
+        duration: 0.35,
+        ease: "power2.out"
+      });
+      gsap.to(lines[1], {
+        y: 4,
+        rotation: 0,
+        x: 0,
+        opacity: 1,
+        duration: 0.35,
+        ease: "power2.out"
+      });
+    }
+  }, [isOpen]);
+
+  // Clean up all running GSAP timelines on unmount
+  useEffect(() => {
+    return () => {
+      hoverTimelineRef.current?.kill();
+      const lines = buttonRef.current?.querySelectorAll("span");
+      if (lines) {
+        gsap.killTweensOf(lines);
+      }
+    };
+  }, []);
+
+  // Keyboard navigation event handler (a11y)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
 
   const menuItems = [
     { label: "Home", href: "/" },
@@ -106,16 +238,33 @@ export default function Navbar() {
   return (
     <>
       {/* Sleek Floating Header Bar */}
-      <header className="fixed top-0 left-0 w-full z-40 px-6 py-6 md:px-12 md:py-8 flex justify-start items-center mix-blend-difference pointer-events-none">
+      <header className="fixed top-0 left-0 w-full z-[60] px-6 py-6 md:px-12 md:py-8 flex justify-start items-center mix-blend-difference pointer-events-none">
         <button
-          onClick={() => setIsOpen(true)}
-          className="pointer-events-auto group flex items-center justify-center text-white hover:opacity-85 transition-opacity"
-          aria-label="Open Menu"
+          ref={buttonRef}
+          onClick={() => setIsOpen(!isOpen)}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          className="pointer-events-auto group flex items-center gap-2.5 justify-center text-white hover:opacity-85 transition-opacity"
+          aria-label={isOpen ? "Close Menu" : "Open Menu"}
         >
-          <div className="flex flex-col gap-1.5 justify-center items-center w-6 h-6">
-            <span className="w-6 h-[1.5px] bg-white transition-transform duration-300 group-hover:translate-y-[1px]"></span>
-            <span className="w-6 h-[1.5px] bg-white transition-transform duration-300 group-hover:-translate-y-[1px]"></span>
+          <div className="relative w-6 h-6 flex items-center justify-center overflow-hidden">
+            <span className="absolute w-6 h-[1.5px] bg-white"></span>
+            <span className="absolute w-6 h-[1.5px] bg-white"></span>
           </div>
+          <span className="text-[10px] uppercase tracking-[0.2em] font-semibold font-sans h-4 flex items-center overflow-hidden relative select-none">
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={isOpen ? "close" : "menu"}
+                initial={{ y: 12, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -12, opacity: 0 }}
+                transition={{ duration: 0.22, ease: "easeOut" }}
+                className="block"
+              >
+                {isOpen ? "Close" : "Menu"}
+              </motion.span>
+            </AnimatePresence>
+          </span>
         </button>
       </header>
 
@@ -133,19 +282,8 @@ export default function Navbar() {
             }}
             className="fixed inset-0 w-screen h-screen z-50 flex flex-col justify-between px-6 py-8 md:px-12 md:py-12 select-none overflow-hidden"
           >
-            {/* Overlay Header with Close Button */}
-            <div className="flex justify-start items-center w-full">
-              <button
-                onClick={() => setIsOpen(false)}
-                className="group flex items-center justify-center text-[#F9F6F0] hover:opacity-75 transition-opacity"
-                aria-label="Close Menu"
-              >
-                <div className="relative w-6 h-6 flex items-center justify-center">
-                  <span className="absolute w-6 h-[1.5px] bg-[#F9F6F0] rotate-45 transition-transform duration-300 group-hover:rotate-90"></span>
-                  <span className="absolute w-6 h-[1.5px] bg-[#F9F6F0] -rotate-45 transition-transform duration-300 group-hover:rotate-0"></span>
-                </div>
-              </button>
-            </div>
+            {/* Overlay Spacer to maintain layout alignment */}
+            <div className="flex justify-start items-center w-full h-6 pointer-events-none" />
 
             {/* Menu Items Centered */}
             <div className="flex-grow flex items-center justify-center">
@@ -176,7 +314,7 @@ export default function Navbar() {
                             duration: 0.45,
                             ease: [0.25, 1, 0.5, 1], 
                           }}
-                          className="origin-center"
+                          className="origin-center will-change-[filter,opacity,transform]"
                         >
                           <Link
                             href={item.href}

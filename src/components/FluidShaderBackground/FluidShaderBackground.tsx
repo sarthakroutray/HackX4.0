@@ -144,10 +144,10 @@ const FRAGMENT_SHADER_SOURCE = `
     vec2 p_down2 = p_down1 + lower_offset2 * cycle;
     vec2 p_down3 = p_down2 + lower_offset3 * cycle;
 
-    // Segment thickness (Tapering from thick center to original tip thickness)
-    float t1 = 0.030 * cycle;
-    float t3 = 0.012 * cycle;
-    float k_blend = 0.035 * cycle;
+    // Segment thickness (Sweet-spot thickness: not too bulky, not too thin)
+    float t1 = 0.023 * cycle;
+    float t3 = 0.008 * cycle;
+    float k_blend = 0.030 * cycle;
 
     // 4. Evaluate Right Upper/Lower branches using cubic Bezier curves over the joint chain
     float d_right_up = distToCubicBezier(p, base, p_up1, p_up2, p_up3, t1, t3, k_blend);
@@ -163,19 +163,19 @@ const FRAGMENT_SHADER_SOURCE = `
     // 6. Merge left and right smoothly
     float d = smin(d_right, d_left, k_blend);
 
-    // 7. Soft Glow Falloff - Adjusted decay for electric glow matching the logo drop shadow
-    float glow = exp(-max(d, 0.0) * 11.5);
+    // 7. Soft Glow Falloff - Balanced decay for a gorgeous, visible electric glow with a soft halo
+    float glow = exp(-max(d, 0.0) * 16.0);
 
-    // 8. Colors mapping - Perfectly matched with the X logo's linear gradient stops
-    vec3 colDeepBlue = vec3(0.0, 0.035, 0.33); // #000955 (Deep midnight blue)
-    vec3 colBlue     = vec3(0.0, 0.13, 0.80);  // #0022cc (Royal blue)
-    vec3 colBright   = vec3(0.0, 0.47, 1.00);  // #0077ff (Electric blue)
-    vec3 colCyan     = vec3(0.0, 0.83, 1.00);  // #00d4ff (Electric cyan-blue)
+    // 8. Colors mapping - Perfectly matched to the X logo stops (Rich electric purples/lavenders)
+    vec3 colDeepPurple = vec3(0.09, 0.00, 0.23); // #16003b (Deep indigo/purple glow)
+    vec3 colPurple     = vec3(0.32, 0.00, 0.78); // #5200c7 (Royal electric violet)
+    vec3 colBright     = vec3(0.47, 0.00, 1.00); // #7801ff (Vibrant electric purple)
+    vec3 colCore       = vec3(0.68, 0.45, 0.95); // #ae73f2 (Soft vibrant lavender core)
 
     // Dynamic color wave shifting (matching the SVG logo gradient rotation effect)
     float wave = sin(uTime * 0.3) * 0.5 + 0.5;
-    vec3 dynamicBright = mix(colBright, vec3(0.0, 0.65, 1.0), wave * 0.3);
-    vec3 dynamicCyan = mix(colCyan, vec3(0.0, 0.95, 1.0), wave * 0.15);
+    vec3 dynamicBright = mix(colBright, vec3(0.32, 0.0, 0.78), wave * 0.2);
+    vec3 dynamicCyan = mix(colCore, vec3(0.47, 0.0, 1.0), wave * 0.2);
 
     // Blending weights
     float mDeepBlue = smoothstep(0.01, 0.22, glow);
@@ -183,13 +183,13 @@ const FRAGMENT_SHADER_SOURCE = `
     float mBright   = smoothstep(0.38, 0.80, glow);
     float mCyan     = smoothstep(0.62, 0.98, glow);
 
-    // Alpha gradient based on fluid glow strength
-    float alpha = clamp(glow * 1.5, 0.0, 1.0);
+    // Alpha gradient based on fluid glow strength (rich and visible, matching the logo)
+    float alpha = clamp(glow * 1.35, 0.0, 1.0);
 
     // Mix colors over transparent base
     vec3 finalColor = vec3(0.0);
-    finalColor = mix(finalColor, colDeepBlue, mDeepBlue);
-    finalColor = mix(finalColor, colBlue, mBlue);
+    finalColor = mix(finalColor, colDeepPurple, mDeepBlue);
+    finalColor = mix(finalColor, colPurple, mBlue);
     finalColor = mix(finalColor, dynamicBright, mBright);
     finalColor = mix(finalColor, dynamicCyan, mCyan);
 
@@ -312,7 +312,7 @@ export default function FluidShaderBackground() {
     <>
       {/* 1. Deep premium CSS gradient background layer */}
       <div
-        className="pointer-events-none fixed inset-0 bg-[#06090f] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#021338] via-[#06090f] to-[#03050a]"
+        className="pointer-events-none fixed inset-0 bg-[#06040f] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#13002b] via-[#06040f] to-[#030206]"
         style={{ zIndex: -20 }}
       />
 
@@ -330,16 +330,15 @@ export default function FluidShaderBackground() {
             height: "28vh",
             width: "25.06vh",
             opacity: 1.0,
-            filter: "drop-shadow(0 0 15px rgba(0, 102, 255, 0.75)) drop-shadow(0 0 40px rgba(0, 40, 200, 0.4))",
+            filter: "drop-shadow(0 0 15px rgba(82, 0, 199, 0.60)) drop-shadow(0 0 40px rgba(174, 115, 242, 0.35))",
           }}
         >
           <defs>
             <linearGradient id="movingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#00d4ff" />
-              <stop offset="25%" stopColor="#0077ff" />
-              <stop offset="50%" stopColor="#0022cc" />
-              <stop offset="75%" stopColor="#000955" />
-              <stop offset="100%" stopColor="#00d4ff" />
+              <stop offset="0%" stopColor="#5200c7" />
+              <stop offset="33%" stopColor="#ae73f2" />
+              <stop offset="66%" stopColor="#7801ff" />
+              <stop offset="100%" stopColor="#5200c7" />
               <animateTransform
                 attributeName="gradientTransform"
                 type="rotate"

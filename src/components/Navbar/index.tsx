@@ -106,17 +106,36 @@ export default function Navbar() {
   return (
     <>
       {/* Sleek Floating Header Bar */}
-      <header className="fixed top-0 left-0 w-full z-40 px-6 py-6 md:px-12 md:py-8 flex justify-start items-center mix-blend-difference pointer-events-none">
+      <header className="fixed top-0 left-0 w-full z-50 h-24 md:h-32 px-7 md:px-12 flex justify-between items-center mix-blend-difference pointer-events-none">
         <button
           onClick={() => setIsOpen(true)}
-          className="pointer-events-auto group flex items-center justify-center text-white hover:opacity-85 transition-opacity"
+          className="pointer-events-auto group flex items-center gap-3 text-white hover:opacity-85 transition-opacity font-serif text-xs md:text-sm font-normal tracking-tight"
           aria-label="Open Menu"
         >
-          <div className="flex flex-col gap-1.5 justify-center items-center w-6 h-6">
-            <span className="w-6 h-[1.5px] bg-white transition-transform duration-300 group-hover:translate-y-[1px]"></span>
-            <span className="w-6 h-[1.5px] bg-white transition-transform duration-300 group-hover:-translate-y-[1px]"></span>
+          <div className="flex flex-col gap-1.5 justify-center items-start w-5">
+            <span className="w-5 h-[1.2px] bg-white transition-all duration-300 group-hover:w-3.5"></span>
+            <span className="w-3.5 h-[1.2px] bg-white transition-all duration-300 group-hover:w-5"></span>
           </div>
+          <span className="relative top-[-0.5px]">Menu</span>
         </button>
+
+        <div className="pointer-events-auto absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 mt-2">
+          <Link href="/">
+            <img
+              src="/assets/logos/HACKX%20White@2x.png"
+              alt="HACKX Logo"
+              className="h-8 md:h-11 w-auto hover:opacity-80 transition-opacity"
+            />
+          </Link>
+        </div>
+
+        <a
+          href="#register"
+          className="pointer-events-auto group/btn font-serif text-xs md:text-sm font-normal tracking-tight text-white hover:opacity-85 transition-opacity flex items-center gap-1.5"
+        >
+          <span>Register</span>
+          <span className="transition-transform duration-300 group-hover/btn:translate-x-1">→</span>
+        </a>
       </header>
 
       {/* Fullscreen Overlay Menu */}

@@ -42,6 +42,8 @@ export function WaterRippleImage({ imageUrl }: WaterRippleImageProps) {
       pauseTimer = setTimeout(() => rippleArea?.ripples("pause"), 1100);
     };
 
+    let initTimer: ReturnType<typeof setTimeout>;
+
     const initialize = async () => {
       const jqueryModule = await import("jquery");
       await import("jquery.ripples");
@@ -52,7 +54,7 @@ export function WaterRippleImage({ imageUrl }: WaterRippleImageProps) {
       rippleArea.ripples({
         imageUrl,
         resolution: 256,
-        perturbance: 0.018,
+        perturbance: 0.058,
         dropRadius: 24,
         interactive: true,
         crossOrigin: "anonymous",
@@ -63,10 +65,14 @@ export function WaterRippleImage({ imageUrl }: WaterRippleImageProps) {
       element.addEventListener("pointermove", resume);
     };
 
-    void initialize();
+    // Delay WebGL initialization until after the entry animation completes to prevent lag
+    initTimer = setTimeout(() => {
+      void initialize();
+    }, 1500);
 
     return () => {
       disposed = true;
+      clearTimeout(initTimer);
       if (pauseTimer) clearTimeout(pauseTimer);
       element.removeEventListener("pointerenter", resume);
       element.removeEventListener("pointermove", resume);
@@ -77,7 +83,7 @@ export function WaterRippleImage({ imageUrl }: WaterRippleImageProps) {
   return (
     <div
       ref={elementRef}
-      className="relative w-full bg-cover bg-center"
+      className="relative w-full overflow-hidden bg-cover bg-center"
       style={{ backgroundImage: `url("${imageUrl}")` }}
     >
       <img src={imageUrl} alt="" className="pointer-events-none w-full opacity-0" />

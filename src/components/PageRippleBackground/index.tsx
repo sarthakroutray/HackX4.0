@@ -10,7 +10,7 @@ type RippleOptions = {
   interactive: boolean;
 };
 
-type RippleElement = JQuery<HTMLElement> & {
+type RippleElement = {
   ripples: (command: RippleOptions | string, ...args: number[]) => void;
 };
 

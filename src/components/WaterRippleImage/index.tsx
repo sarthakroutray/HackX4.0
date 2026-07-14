@@ -4,6 +4,8 @@ import { useEffect, useRef } from "react";
 
 type WaterRippleImageProps = {
   imageUrl: string;
+  isActive: boolean;
+  priority?: boolean;
 };
 
 type RippleOptions = {
@@ -15,34 +17,25 @@ type RippleOptions = {
   crossOrigin: string;
 };
 
-type RippleElement = JQuery<HTMLElement> & {
-  ripples: (command: RippleOptions | "play" | "pause" | "destroy") => void;
+type RippleElement = {
+  ripples: (command: RippleOptions | string, ...args: number[]) => void;
 };
 
 /**
  * React wrapper around jquery.ripples' WebGL water simulation.
- * It remains paused while idle, then wakes for a brief, natural wave decay
- * whenever the viewer enters or moves across the image.
+ * Only the currently hovered card has an active canvas.
  */
-export function WaterRippleImage({ imageUrl }: WaterRippleImageProps) {
+export function WaterRippleImage({ imageUrl, isActive, priority = false }: WaterRippleImageProps) {
   const elementRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!isActive) return;
+
     const element = elementRef.current;
     if (!element) return;
 
     let disposed = false;
-    let pauseTimer: ReturnType<typeof setTimeout> | undefined;
     let rippleArea: RippleElement | undefined;
-
-    const resume = () => {
-      if (!rippleArea) return;
-      rippleArea.ripples("play");
-      if (pauseTimer) clearTimeout(pauseTimer);
-      pauseTimer = setTimeout(() => rippleArea?.ripples("pause"), 1100);
-    };
-
-    let initTimer: ReturnType<typeof setTimeout>;
 
     const initialize = async () => {
       const jqueryModule = await import("jquery");
@@ -53,40 +46,43 @@ export function WaterRippleImage({ imageUrl }: WaterRippleImageProps) {
       rippleArea = $(element) as unknown as RippleElement;
       rippleArea.ripples({
         imageUrl,
-        resolution: 256,
+        // A single, lower-resolution canvas is visually smooth without
+        // competing with the page's other animations.
+        resolution: 128,
         perturbance: 0.058,
         dropRadius: 24,
+        // One active canvas keeps the pointer-driven effect responsive without
+        // the overload caused by every gallery card listening at once.
         interactive: true,
         crossOrigin: "anonymous",
       });
-      rippleArea.ripples("pause");
-
-      element.addEventListener("pointerenter", resume);
-      element.addEventListener("pointermove", resume);
+      rippleArea.ripples("play");
     };
 
-    // Delay WebGL initialization until after the entry animation completes to prevent lag
-    initTimer = setTimeout(() => {
-      void initialize();
-    }, 1500);
+    // Only the image under the pointer owns a WebGL canvas. Initialising one
+    // canvas per card creates a large GPU workload and eventually stalls hover.
+    void initialize();
 
     return () => {
       disposed = true;
-      clearTimeout(initTimer);
-      if (pauseTimer) clearTimeout(pauseTimer);
-      element.removeEventListener("pointerenter", resume);
-      element.removeEventListener("pointermove", resume);
       rippleArea?.ripples("destroy");
     };
-  }, [imageUrl]);
+  }, [imageUrl, isActive]);
 
   return (
     <div
       ref={elementRef}
       className="relative w-full overflow-hidden bg-cover bg-center"
-      style={{ backgroundImage: `url("${imageUrl}")` }}
+      style={{ backgroundImage: isActive ? `url("${imageUrl}")` : undefined }}
     >
-      <img src={imageUrl} alt="" className="pointer-events-none w-full opacity-0" />
+      <img
+        src={imageUrl}
+        alt=""
+        className={`pointer-events-none w-full ${isActive ? "opacity-0" : "opacity-100"}`}
+        loading={priority ? "eager" : "lazy"}
+        fetchPriority={priority ? "high" : "low"}
+        decoding="async"
+      />
     </div>
   );
 }

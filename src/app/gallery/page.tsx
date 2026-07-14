@@ -184,18 +184,6 @@ export default function Home() {
         className="fixed bottom-0 left-0 top-0 z-50 w-1 origin-top bg-[#faebac]"
         style={{ scaleY: scrollYProgress }}
       />
-      <header className="fixed inset-x-0 top-0 z-30 flex items-center justify-between px-7 py-7 text-xs font-semibold tracking-tight md:px-12">
-        <button className="flex items-center gap-3 transition-opacity hover:opacity-60" type="button">
-          <span className="h-px w-4 bg-current" /> Menu
-        </button>
-        <img 
-          src="/assets/logos/HACKX Black Color@2x.png" 
-          alt="HACKX Logo" 
-          className="absolute left-1/2 -translate-x-1/2 h-8 w-auto md:h-12"
-        />
-        <button className="transition-opacity hover:opacity-60" type="button">Let&apos;s chat&nbsp; →</button>
-      </header>
-
       <AnimatePresence mode="wait">
         <motion.h1
           key={activeProject.id + '-bg'}
@@ -264,8 +252,11 @@ export default function Home() {
                 className="cursor-crosshair overflow-hidden bg-[#0d1424] transition-opacity duration-500 relative"
                 style={{ 
                   opacity: hoveredProject && hoveredProject.id !== project.id ? 0.3 : 1,
-                  clipPath: clipPathPolygon,
-                  WebkitClipPath: clipPathPolygon
+                  // Applying an animated polygon clip to every card forces all
+                  // images into repaint-heavy layers while scrolling.
+                  ...(hoveredProject?.id === project.id
+                    ? { clipPath: clipPathPolygon, WebkitClipPath: clipPathPolygon }
+                    : {})
                 }}
                 onMouseEnter={() => {
                   setActiveProject(project);
@@ -273,7 +264,11 @@ export default function Home() {
                 }}
                 onMouseLeave={() => setHoveredProject(null)}
               >
-                <WaterRippleImage imageUrl={project.image} />
+                <WaterRippleImage
+                  imageUrl={project.image}
+                  isActive={hoveredProject?.id === project.id}
+                  priority={index < 2}
+                />
               </motion.div>
             </motion.article>
           ))}

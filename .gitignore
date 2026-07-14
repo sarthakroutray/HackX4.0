@@ -12,3 +12,7 @@
 
 # local
 .commandcode
+
+# agent skills
+.agents/
+skills-lock.json

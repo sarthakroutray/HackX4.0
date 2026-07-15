@@ -52,12 +52,19 @@ export default function Footer() {
       </div>
 
       <div className={styles["hero-row"]}>
-        <h2 className={styles["hero-headline"]}>
-          <span className={styles.line}>Let's</span>
-          <span className={styles.line}>create</span>
-          <span className={`${styles.line} ${styles.future}`}>future</span>
-          <span className={styles.line}>together</span>
-        </h2>
+        <div className="flex flex-col items-start gap-4">
+          <h2 className={styles["hero-headline"]}>
+            <span className={styles.line}>Let's</span>
+            <span className={styles.line}>create</span>
+            <span className={`${styles.line} ${styles.future}`}>future</span>
+            <span className={styles.line}>together</span>
+          </h2>
+          {/* Mobile contact block (visible only on mobile viewports) */}
+          <div className={styles["contact-block-mobile"]}>
+            <p className={styles["contact-us-label"]}>Contact us</p>
+            <a className={styles["contact-email"]} href="mailto:hackxmuj@gmail.com">hackxmuj@gmail.com</a>
+          </div>
+        </div>
 
         <div className={styles["team-grid"]}>
           <div className={styles["team-card"]}>
@@ -84,7 +91,8 @@ export default function Footer() {
       </div>
 
       <div className={styles["footer-bottom"]}>
-        <div className={styles["contact-block"]}>
+        {/* Desktop contact block (hidden on mobile viewports) */}
+        <div className={styles["contact-block-desktop"]}>
           <p className={styles["contact-us-label"]}>Contact us</p>
           <a className={styles["contact-email"]} href="mailto:hackxmuj@gmail.com">hackxmuj@gmail.com</a>
         </div>

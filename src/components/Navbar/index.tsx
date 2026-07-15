@@ -13,6 +13,17 @@ export default function Navbar() {
   const hoverTimelineRef = useRef<gsap.core.Timeline | null>(null);
 
   const [isSafari, setIsSafari] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => {
     if (typeof navigator !== "undefined") {
@@ -338,8 +349,8 @@ export default function Navbar() {
                   const isAnyHovered = hoveredIdx !== null;
                   const distance = isAnyHovered ? Math.abs((hoveredIdx as number) - idx) : 0;
                   
-                  // Distance-based blur cap to handle 7 items elegantly
-                  const blurVal = isAnyHovered ? (isHovered ? 0 : Math.min(12, 4 + distance * 3.5)) : 0;
+                  // Distance-based blur cap to handle 7 items elegantly, disabled on mobile view
+                  const blurVal = !isMobile && isAnyHovered ? (isHovered ? 0 : Math.min(12, 4 + distance * 3.5)) : 0;
                   const opacityVal = isAnyHovered ? (isHovered ? 1 : Math.max(0.12, 0.45 - distance * 0.05)) : 1;
                   const scaleVal = isHovered ? 1.03 : 1;
 

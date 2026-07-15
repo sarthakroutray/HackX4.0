@@ -272,8 +272,8 @@ export default function Navbar() {
           aria-label={isOpen ? "Close Menu" : "Open Menu"}
         >
           <div className="relative w-6 h-6 flex items-center justify-center overflow-hidden">
-            <span className="absolute w-4 h-[0.5px] bg-white"></span>
-            <span className="absolute w-4 h-[0.5px] bg-white"></span>
+            <span className="absolute w-4 h-[0.5px] bg-white" style={{ transform: "translateY(-4px)" }}></span>
+            <span className="absolute w-4 h-[0.5px] bg-white" style={{ transform: "translateY(4px)" }}></span>
           </div>
           <span className="text-[10px] uppercase tracking-[0.2em] font-semibold font-sans h-4 flex items-center overflow-hidden relative select-none">
             <AnimatePresence mode="wait">

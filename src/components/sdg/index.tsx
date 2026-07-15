@@ -147,6 +147,15 @@ export default function SdgComponent() {
   const prevSettledIndexRef = useRef(0);
   const activeIndexRef = useRef(0);
 
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsReady(true);
+    }, 150);
+    return () => clearTimeout(timer);
+  }, []);
+
   // Debounce activeIndex updates by 120ms to settle scroll targets before transitioning
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -215,6 +224,7 @@ export default function SdgComponent() {
   };
 
   useGSAP(() => {
+    if (!isReady) return;
     if (!sectionRef.current) return;
 
     // Setup initial states — active is index 0
@@ -364,10 +374,13 @@ export default function SdgComponent() {
         }
       }
     });
-  }, { scope: sectionRef });
+
+    // Fade in section after paint/measure delay
+    gsap.to(sectionRef.current, { opacity: 1, duration: 0.4 });
+  }, { scope: sectionRef, dependencies: [isReady] });
 
   return (
-    <section ref={sectionRef} className="w-full h-screen relative flex items-center bg-transparent select-none">
+    <section ref={sectionRef} className="w-full h-screen relative flex items-center bg-transparent select-none opacity-0">
 
 
       {/* Brand Stack (Arc Motion Area) */}

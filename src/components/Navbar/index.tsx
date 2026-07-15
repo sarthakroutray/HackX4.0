@@ -238,13 +238,23 @@ export default function Navbar() {
   return (
     <>
       {/* Sleek Floating Header Bar */}
-      <header className="fixed top-0 left-0 w-full z-[60] h-24 md:h-32 px-7 md:px-12 flex justify-between items-center mix-blend-difference pointer-events-none">
+      <header className="fixed top-0 left-0 z-[100] isolate h-24 w-full overflow-hidden px-7 md:h-32 md:px-12 flex justify-between items-center pointer-events-none">
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 z-0 will-change-[backdrop-filter]"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(4, 5, 16, 0.78) 0%, rgba(4, 5, 16, 0.48) 56%, rgba(4, 5, 16, 0.16) 82%, rgba(4, 5, 16, 0) 100%)",
+            backdropFilter: "blur(52px) saturate(1.7)",
+            WebkitBackdropFilter: "blur(52px) saturate(1.7)",
+          }}
+        />
         <button
           ref={buttonRef}
           onClick={() => setIsOpen(!isOpen)}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
-          className="pointer-events-auto group flex items-center gap-2.5 justify-center text-white hover:opacity-85 transition-opacity"
+          className="pointer-events-auto relative z-10 group flex items-center gap-2.5 justify-center text-white hover:opacity-85 transition-opacity mix-blend-difference"
           aria-label={isOpen ? "Close Menu" : "Open Menu"}
         >
           <div className="relative w-6 h-6 flex items-center justify-center overflow-hidden">
@@ -267,7 +277,7 @@ export default function Navbar() {
           </span>
         </button>
 
-        <div className="pointer-events-auto absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+        <div className="pointer-events-auto absolute z-10 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 mix-blend-difference">
           <Link href="/">
             <img
               src="/assets/logos/HACKX%20White@2x.png"
@@ -279,7 +289,7 @@ export default function Navbar() {
 
         <a
           href="#register"
-          className="pointer-events-auto group/btn font-sans text-xs md:text-sm font-normal tracking-tight text-white hover:opacity-85 transition-opacity flex items-center gap-1.5"
+          className="pointer-events-auto relative z-10 group/btn font-sans text-xs md:text-sm font-normal tracking-tight text-white hover:opacity-85 transition-opacity flex items-center gap-1.5 mix-blend-difference"
         >
           <span>Register</span>
           <span className="transition-transform duration-300 group-hover/btn:translate-x-1">→</span>
@@ -298,7 +308,7 @@ export default function Navbar() {
               background: "radial-gradient(ellipse at center, rgba(192, 118, 236, 0.42) 0%, rgba(162, 35, 237, 0.28) 45%, rgba(87, 44, 230, 0.15) 75%, #08010F 100%)",
               backgroundColor: "#08010F",
             }}
-            className="fixed inset-0 w-screen h-screen z-50 flex flex-col justify-between px-6 py-8 md:px-12 md:py-12 select-none overflow-hidden"
+            className="fixed inset-0 w-screen h-screen z-[90] flex flex-col justify-between px-6 py-8 md:px-12 md:py-12 select-none overflow-hidden"
           >
             {/* Overlay Spacer to maintain layout alignment */}
             <div className="flex justify-start items-center w-full h-6 pointer-events-none" />

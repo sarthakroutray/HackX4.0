@@ -16,6 +16,11 @@ const instrumentSerifItalic = localFont({
   variable: "--font-serif",
 });
 
+const antonFallback = localFont({
+  src: "../../public/assets/fonts/OskariG2Medium.otf",
+  variable: "--font-anton",
+});
+
 export const metadata: Metadata = {
   title: "HackX 4.0 — MUJ's Largest Hackathon",
   description: "HackX 4.0 — Join MUJ's biggest hackathon and ignite innovation.",
@@ -27,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${oskariG2Sans.variable} ${instrumentSerifItalic.variable}`}>
+    <html lang="en" className={`${oskariG2Sans.variable} ${instrumentSerifItalic.variable} ${antonFallback.variable}`}>
       <body className="antialiased flex flex-col min-h-screen justify-between bg-transparent text-white relative">
         <LenisProvider>
           <FluidShaderBackground />

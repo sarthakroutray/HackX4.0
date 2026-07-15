@@ -3,7 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import Stats from "@/components/Stats";
-import Themes from "@/components/Themes";
+import SdgComponent from "@/components/sdg";
 
 export default function Home() {
   // Smooth staggered entry animations
@@ -117,7 +117,7 @@ export default function Home() {
       </div>
 
       <Stats />
-      <Themes />
+      <SdgComponent />
     </>
   );
 }

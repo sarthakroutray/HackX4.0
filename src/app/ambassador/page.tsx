@@ -1,12 +1,12 @@
 "use client";
 
 import React from "react";
-import SdgComponent from "@/components/sdg";
+import Ambassador from "@/components/Ambassador";
 
 export default function AmbassadorPage() {
-  return (
-    <div className="w-full bg-transparent">
-      <SdgComponent />
-    </div>
-  );
+  return <Ambassador />;
 }
+
+
+
+

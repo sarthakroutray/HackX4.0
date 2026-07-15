@@ -34,7 +34,17 @@ const faqData = [
   }
 ];
 
-export default function FAQ() {
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+interface FAQProps {
+  data?: FAQItem[];
+  heading?: React.ReactNode;
+}
+
+export default function FAQ({ data = faqData, heading }: FAQProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -81,12 +91,16 @@ export default function FAQ() {
             
             {/* Heading */}
             <h2 className="font-sans font-bold text-4xl md:text-5xl lg:text-6xl text-white tracking-normal mb-16 leading-[1.08] uppercase">
-              Here&apos;s what you <br />need to know before <br />registering.
+              {heading || (
+                <>
+                  Here&apos;s what you <br />need to know before <br />registering.
+                </>
+              )}
             </h2>
 
             {/* Accordion Questions List */}
             <div className="border-t border-white/10 w-full">
-              {faqData.map((item, idx) => {
+              {data.map((item, idx) => {
                 const isExpanded = expandedIndex === idx;
                 
                 return (

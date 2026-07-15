@@ -14,7 +14,7 @@ const brands: Brand[] = [
   {
     name: "Health",
     logo: (
-      <svg className="w-full max-h-[55px] fill-current text-[#f9f6f0]" viewBox="0 0 200 50">
+      <svg className="w-full max-h-[75px] fill-current text-[#f9f6f0]" viewBox="0 0 200 50">
         <text x="50%" y="14" dominantBaseline="middle" textAnchor="middle" fontFamily="sans-serif" fontWeight="700" fontSize="9" letterSpacing="0.05em" fill="currentColor">GOOD HEALTH</text>
         <text x="50%" y="26" dominantBaseline="middle" textAnchor="middle" fontFamily="sans-serif" fontWeight="700" fontSize="9" letterSpacing="0.05em" fill="currentColor">AND WELL-BEING</text>
         <path d="M100 32 Q100 28 104 28 Q108 28 108 32 Q108 36 100 42 Q92 36 92 32 Q92 28 96 28 Q100 28 100 32Z" stroke="currentColor" strokeWidth="1.5" fill="none" />
@@ -26,7 +26,7 @@ const brands: Brand[] = [
   {
     name: "Education",
     logo: (
-      <svg className="w-full max-h-[55px] fill-current text-[#f9f6f0]" viewBox="0 0 200 50">
+      <svg className="w-full max-h-[75px] fill-current text-[#f9f6f0]" viewBox="0 0 200 50">
         <text x="50%" y="14" dominantBaseline="middle" textAnchor="middle" fontFamily="sans-serif" fontWeight="700" fontSize="9" letterSpacing="0.05em" fill="currentColor">QUALITY</text>
         <text x="50%" y="26" dominantBaseline="middle" textAnchor="middle" fontFamily="sans-serif" fontWeight="700" fontSize="9" letterSpacing="0.05em" fill="currentColor">EDUCATION</text>
         <rect x="90" y="30" width="12" height="14" rx="1" fill="none" stroke="currentColor" strokeWidth="1.3" />
@@ -39,7 +39,7 @@ const brands: Brand[] = [
   {
     name: "Equality",
     logo: (
-      <svg className="w-full max-h-[55px] fill-current text-[#f9f6f0]" viewBox="0 0 200 50">
+      <svg className="w-full max-h-[75px] fill-current text-[#f9f6f0]" viewBox="0 0 200 50">
         <text x="50%" y="14" dominantBaseline="middle" textAnchor="middle" fontFamily="sans-serif" fontWeight="700" fontSize="9" letterSpacing="0.05em" fill="currentColor">GENDER</text>
         <text x="50%" y="26" dominantBaseline="middle" textAnchor="middle" fontFamily="sans-serif" fontWeight="700" fontSize="9" letterSpacing="0.05em" fill="currentColor">EQUALITY</text>
         <circle cx="100" cy="36" r="5" fill="none" stroke="currentColor" strokeWidth="1.5" />
@@ -52,7 +52,7 @@ const brands: Brand[] = [
   {
     name: "Clean Energy",
     logo: (
-      <svg className="w-full max-h-[55px] fill-current text-[#f9f6f0]" viewBox="0 0 200 50">
+      <svg className="w-full max-h-[75px] fill-current text-[#f9f6f0]" viewBox="0 0 200 50">
         <text x="50%" y="14" dominantBaseline="middle" textAnchor="middle" fontFamily="sans-serif" fontWeight="700" fontSize="9" letterSpacing="0.05em" fill="currentColor">AFFORDABLE AND</text>
         <text x="50%" y="26" dominantBaseline="middle" textAnchor="middle" fontFamily="sans-serif" fontWeight="700" fontSize="9" letterSpacing="0.05em" fill="currentColor">CLEAN ENERGY</text>
         <circle cx="100" cy="38" r="6" fill="none" stroke="currentColor" strokeWidth="1.3" />
@@ -68,7 +68,7 @@ const brands: Brand[] = [
   {
     name: "Decent Work",
     logo: (
-      <svg className="w-full max-h-[55px] fill-current text-[#f9f6f0]" viewBox="0 0 200 50">
+      <svg className="w-full max-h-[75px] fill-current text-[#f9f6f0]" viewBox="0 0 200 50">
         <text x="50%" y="14" dominantBaseline="middle" textAnchor="middle" fontFamily="sans-serif" fontWeight="700" fontSize="9" letterSpacing="0.05em" fill="currentColor">DECENT WORK AND</text>
         <text x="50%" y="26" dominantBaseline="middle" textAnchor="middle" fontFamily="sans-serif" fontWeight="700" fontSize="9" letterSpacing="0.05em" fill="currentColor">ECONOMIC GROWTH</text>
         <rect x="88" y="44" width="4" height="3" fill="currentColor" />
@@ -83,7 +83,7 @@ const brands: Brand[] = [
   {
     name: "Innovation",
     logo: (
-      <svg className="w-full max-h-[55px] fill-current text-[#f9f6f0]" viewBox="0 0 200 50">
+      <svg className="w-full max-h-[75px] fill-current text-[#f9f6f0]" viewBox="0 0 200 50">
         <text x="50%" y="14" dominantBaseline="middle" textAnchor="middle" fontFamily="sans-serif" fontWeight="700" fontSize="9" letterSpacing="0.05em" fill="currentColor">INDUSTRY, INNOVATION</text>
         <text x="50%" y="26" dominantBaseline="middle" textAnchor="middle" fontFamily="sans-serif" fontWeight="700" fontSize="9" letterSpacing="0.05em" fill="currentColor">AND INFRASTRUCTURE</text>
         <path d="M90 45 L95 30 L100 45 Z" fill="none" stroke="currentColor" strokeWidth="1.3" />
@@ -95,7 +95,7 @@ const brands: Brand[] = [
   {
     name: "Equality",
     logo: (
-      <svg className="w-full max-h-[55px] fill-current text-[#f9f6f0]" viewBox="0 0 200 50">
+      <svg className="w-full max-h-[75px] fill-current text-[#f9f6f0]" viewBox="0 0 200 50">
         <text x="50%" y="14" dominantBaseline="middle" textAnchor="middle" fontFamily="sans-serif" fontWeight="700" fontSize="9" letterSpacing="0.05em" fill="currentColor">REDUCED</text>
         <text x="50%" y="26" dominantBaseline="middle" textAnchor="middle" fontFamily="sans-serif" fontWeight="700" fontSize="9" letterSpacing="0.05em" fill="currentColor">INEQUALITIES</text>
         <polygon points="100,32 95,40 105,40" fill="none" stroke="currentColor" strokeWidth="1.3" />
@@ -107,7 +107,7 @@ const brands: Brand[] = [
   {
     name: "Climate",
     logo: (
-      <svg className="w-full max-h-[55px] fill-current text-[#f9f6f0]" viewBox="0 0 200 50">
+      <svg className="w-full max-h-[75px] fill-current text-[#f9f6f0]" viewBox="0 0 200 50">
         <text x="50%" y="14" dominantBaseline="middle" textAnchor="middle" fontFamily="sans-serif" fontWeight="700" fontSize="9" letterSpacing="0.05em" fill="currentColor">CLIMATE</text>
         <text x="50%" y="26" dominantBaseline="middle" textAnchor="middle" fontFamily="sans-serif" fontWeight="700" fontSize="9" letterSpacing="0.05em" fill="currentColor">ACTION</text>
         <circle cx="100" cy="38" r="7" fill="none" stroke="currentColor" strokeWidth="1.3" />
@@ -120,7 +120,7 @@ const brands: Brand[] = [
   {
     name: "Partnerships",
     logo: (
-      <svg className="w-full max-h-[55px] fill-current text-[#f9f6f0]" viewBox="0 0 200 50">
+      <svg className="w-full max-h-[75px] fill-current text-[#f9f6f0]" viewBox="0 0 200 50">
         <text x="50%" y="14" dominantBaseline="middle" textAnchor="middle" fontFamily="sans-serif" fontWeight="700" fontSize="9" letterSpacing="0.05em" fill="currentColor">PARTNERSHIPS</text>
         <text x="50%" y="26" dominantBaseline="middle" textAnchor="middle" fontFamily="sans-serif" fontWeight="700" fontSize="9" letterSpacing="0.05em" fill="currentColor">FOR THE GOALS</text>
         <circle cx="100" cy="38" r="7" fill="none" stroke="currentColor" strokeWidth="1.3" />
@@ -140,6 +140,48 @@ export default function SdgComponent() {
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const [activeIndex, setActiveIndex] = useState(0);
+  const [settledIndex, setSettledIndex] = useState(0);
+  const prevSettledIndexRef = useRef(0);
+  const activeIndexRef = useRef(0);
+
+  // Debounce activeIndex updates by 120ms to settle scroll targets before transitioning
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSettledIndex(activeIndex);
+    }, 120);
+
+    return () => clearTimeout(timer);
+  }, [activeIndex]);
+
+  // Smooth, constant-speed time-based transition played when selection changes
+  useEffect(() => {
+    const prevIdx = prevSettledIndexRef.current;
+    if (prevIdx === settledIndex) return;
+
+    // Fade/blur out previous card
+    if (cardRefs.current[prevIdx]) {
+      gsap.to(cardRefs.current[prevIdx], {
+        opacity: 0,
+        filter: "blur(20px)",
+        pointerEvents: "none",
+        duration: 0.55,
+        ease: "power2.inOut",
+      });
+    }
+
+    // Fade/blur in next active card
+    if (cardRefs.current[settledIndex]) {
+      gsap.to(cardRefs.current[settledIndex], {
+        opacity: 1,
+        filter: "blur(0px)",
+        pointerEvents: "auto",
+        duration: 0.55,
+        ease: "power2.out",
+      });
+    }
+
+    prevSettledIndexRef.current = settledIndex;
+  }, [settledIndex]);
 
   const getArcPosition = (diff: number) => {
     const absDiff = Math.abs(diff);
@@ -219,14 +261,15 @@ export default function SdgComponent() {
             invalidateOnRefresh: true,
             onUpdate: (self) => {
               const progressIdx = Math.round(self.progress * (brands.length - 1));
-              if (progressIdx !== activeIndex) {
+              if (progressIdx !== activeIndexRef.current) {
+                activeIndexRef.current = progressIdx;
                 setActiveIndex(progressIdx);
               }
             },
           },
         });
 
-        // Core transitions for each brand item and right card
+        // Core transitions for each brand item
         for (let s = 1; s < brands.length; s++) {
           // Transition each brand along the mirrored arc trajectory
           for (let k = 0; k < brands.length; k++) {
@@ -245,23 +288,6 @@ export default function SdgComponent() {
               ease: "none",
             }, s - 1);
           }
-
-          // Stay-in-place blur-up card transitions
-          tl.to(cardRefs.current[s - 1], {
-            opacity: 0,
-            filter: "blur(20px)",
-            pointerEvents: "none",
-            duration: 0.8,
-            ease: "power2.inOut",
-          }, s - 1);
-
-          tl.to(cardRefs.current[s], {
-            opacity: 1,
-            filter: "blur(0px)",
-            pointerEvents: "auto",
-            duration: 0.8,
-            ease: "power2.out",
-          }, s - 1 + 0.2);
         }
       });
 
@@ -292,7 +318,8 @@ export default function SdgComponent() {
             invalidateOnRefresh: true,
             onUpdate: (self) => {
               const progressIdx = Math.round(self.progress * (brands.length - 1));
-              if (progressIdx !== activeIndex) {
+              if (progressIdx !== activeIndexRef.current) {
+                activeIndexRef.current = progressIdx;
                 setActiveIndex(progressIdx);
               }
             },
@@ -335,23 +362,6 @@ export default function SdgComponent() {
               ease: "none",
             }, s - 1);
           }
-
-          // Stay-in-place blur transitions for cards on mobile
-          tl.to(cardRefs.current[s - 1], {
-            opacity: 0,
-            filter: "blur(15px)",
-            pointerEvents: "none",
-            duration: 0.8,
-            ease: "power2.inOut",
-          }, s - 1);
-
-          tl.to(cardRefs.current[s], {
-            opacity: 1,
-            filter: "blur(0px)",
-            pointerEvents: "auto",
-            duration: 0.8,
-            ease: "power2.out",
-          }, s - 1 + 0.15);
         }
       });
     }, sectionRef);
@@ -367,7 +377,7 @@ export default function SdgComponent() {
 
       {/* Brand Stack (Arc Motion Area) */}
       {/* Shifted left position to left-[12vw] and md:left-[24vw] for more breathing room from edge */}
-      <div className="absolute left-[12vw] md:left-[24vw] top-0 h-full w-[80vw] md:w-[50vw] flex items-start pt-[52vh] justify-start z-20 pointer-events-none">
+      <div className="absolute left-[12vw] md:left-[24vw] top-0 h-full w-[80vw] md:w-[50vw] flex items-start pt-[48vh] justify-start z-20 pointer-events-none">
         <div ref={stackGroupRef} className="relative w-full">
           {brands.map((brand, idx) => (
             <div
@@ -405,8 +415,8 @@ export default function SdgComponent() {
       </div>
 
       {/* Right Active Brand Info Panel */}
-      {/* Centered vertically around the pt-[52vh] scroll center line using items-start and translate-y-1/2 on inner container */}
-      <div className="absolute right-[4vw] md:right-[6.5vw] top-0 h-full w-[90vw] md:w-[32vw] flex items-start pt-[52vh] z-30 pointer-events-none md:pointer-events-auto">
+      {/* Centered vertically around the pt-[48vh] scroll center line using items-start and translate-y-1/2 on inner container */}
+      <div className="absolute right-[4vw] md:right-[6.5vw] top-0 h-full w-[90vw] md:w-[32vw] flex items-start pt-[48vh] z-30 pointer-events-none md:pointer-events-auto">
         <div className="relative w-full h-[120px] flex items-center -translate-y-1/2">
           {brands.map((brand, idx) => (
             <div

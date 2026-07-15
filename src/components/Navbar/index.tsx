@@ -12,6 +12,20 @@ export default function Navbar() {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const hoverTimelineRef = useRef<gsap.core.Timeline | null>(null);
 
+  const [isSafari, setIsSafari] = useState(false);
+
+  useEffect(() => {
+    if (typeof navigator !== "undefined") {
+      const ua = navigator.userAgent.toLowerCase();
+      const isSafariBrowser =
+        ua.includes("safari") &&
+        !ua.includes("chrome") &&
+        !ua.includes("chromium") &&
+        !ua.includes("android");
+      setIsSafari(isSafariBrowser);
+    }
+  }, []);
+
   const handleMouseEnter = () => {
     const lines = buttonRef.current?.querySelectorAll("span");
     if (!lines || lines.length < 2) return;
@@ -245,8 +259,8 @@ export default function Navbar() {
           style={{
             background:
               "linear-gradient(to bottom, rgba(4, 5, 16, 0.78) 0%, rgba(4, 5, 16, 0.48) 56%, rgba(4, 5, 16, 0.16) 82%, rgba(4, 5, 16, 0) 100%)",
-            backdropFilter: "blur(52px) saturate(1.7)",
-            WebkitBackdropFilter: "blur(52px) saturate(1.7)",
+            backdropFilter: isSafari ? "none" : "blur(52px) saturate(1.7)",
+            WebkitBackdropFilter: isSafari ? "none" : "blur(52px) saturate(1.7)",
           }}
         />
         <button

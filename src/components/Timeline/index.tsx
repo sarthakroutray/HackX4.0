@@ -195,24 +195,20 @@ export default function Timeline() {
             );
           })}
 
-          {/* Moving Active Tracker Dot with Group Translation & Halo Glow */}
-          <motion.g style={{ x: xPosition, y: yPosition }}>
-            {/* Outer halo glow */}
-            <circle
-              cx="0"
-              cy="0"
-              r="22"
-              fill="#ffffff"
-              opacity="0.25"
-            />
-            {/* Inner solid tracker */}
-            <circle
-              cx="0"
-              cy="0"
-              r="9"
-              fill="#ffffff"
-            />
-          </motion.g>
+          {/* Moving Active Tracker Dot with direct SVG circle coordinate animation (avoids Safari CSS transform bugs on SVG groups) */}
+          <motion.circle
+            cx={xPosition}
+            cy={yPosition}
+            r="22"
+            fill="#ffffff"
+            opacity="0.25"
+          />
+          <motion.circle
+            cx={xPosition}
+            cy={yPosition}
+            r="9"
+            fill="#ffffff"
+          />
 
         </svg>
         )}

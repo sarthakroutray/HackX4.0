@@ -210,8 +210,8 @@ export default function ThemeCard({ card }: ThemeCardProps) {
                   key={i} 
                   className="h-[3px] bg-orange-500 rounded-sm transition-all duration-500"
                   style={{
-                    width: `${50 + Math.sin(i * 0.6) * 35}%`,
-                    opacity: 0.3 + (i % 3) * 0.2
+                    width: `${(50 + Math.sin(i * 0.6) * 35).toFixed(4)}%`,
+                    opacity: parseFloat((0.3 + (i % 3) * 0.2).toFixed(2))
                   }}
                 />
               ))}

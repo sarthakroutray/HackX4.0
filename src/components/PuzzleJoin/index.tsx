@@ -92,23 +92,9 @@ export default function PuzzleJoin() {
 
       {/* Title & Heading */}
       <div className="relative z-10 text-center mb-12 max-w-2xl px-4 flex flex-col items-center">
-        <h2 className="font-sans font-black text-3xl md:text-5xl uppercase tracking-tight text-white leading-none mb-4">
+        <h2 className="font-sans font-black text-3xl md:text-5xl uppercase tracking-tight text-white leading-none">
           BECOME THE CAMPUS AMBASSADOR!
         </h2>
-        <div className="mt-2 pointer-events-auto">
-          <Link
-            href="#apply"
-            className="relative inline-flex items-center justify-center px-6 py-2.5 rounded-full font-sans text-xs md:text-sm font-semibold tracking-wider text-white uppercase border border-white/10 overflow-hidden group transition-all duration-300 hover:border-white/30 shadow-[0_0_15px_rgba(120,1,255,0.1)] hover:shadow-[0_0_25px_rgba(120,1,255,0.25)] bg-white/[0.03] backdrop-blur-md animate-fade-in"
-          >
-            <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-[#7801FF]/20 to-[#D242D7]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <span className="relative z-10 flex items-center gap-1.5">
-              apply now
-              <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">
-                →
-              </span>
-            </span>
-          </Link>
-        </div>
       </div>
 
       {/* Main Puzzle Area */}
@@ -177,6 +163,26 @@ export default function PuzzleJoin() {
           </div>
         </div>
 
+      </div>
+
+      {/* CTA Button that appears when joined */}
+      <div
+        className={`relative z-20 mt-12 transition-all duration-700 transform ${
+          isJoined ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6 pointer-events-none"
+        }`}
+      >
+        <Link
+          href="#apply"
+          className="relative inline-flex items-center justify-center px-8 py-3.5 rounded-full font-sans text-xs md:text-sm font-semibold tracking-wider text-white uppercase border border-white/10 overflow-hidden group transition-all duration-300 hover:border-white/30 shadow-[0_0_20px_rgba(120,1,255,0.15)] hover:shadow-[0_0_35px_rgba(210,66,215,0.35)] bg-white/[0.03] backdrop-blur-md"
+        >
+          <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-[#7801FF]/20 to-[#D242D7]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <span className="relative z-10 flex items-center gap-1.5">
+            apply now
+            <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">
+              →
+            </span>
+          </span>
+        </Link>
       </div>
     </div>
   );

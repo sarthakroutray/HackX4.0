@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 
 const VERTEX_SHADER_SOURCE = `
   attribute vec2 position;
@@ -167,9 +168,11 @@ const FRAGMENT_SHADER_SOURCE = `
 `;
 
 export default function FluidShaderBackground() {
+  const pathname = usePathname();
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
+    if (pathname === "/team") return;
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -271,7 +274,9 @@ export default function FluidShaderBackground() {
       gl.deleteShader(vertexShader);
       gl.deleteShader(fragmentShader);
     };
-  }, []);
+  }, [pathname]);
+
+  if (pathname === "/team") return null;
 
   return (
     <>

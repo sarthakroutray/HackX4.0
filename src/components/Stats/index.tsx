@@ -43,6 +43,14 @@ const STATS_DATA = [
 export default function Stats() {
   const [activeIndex, setActiveIndex] = useState(0);
   const activeIndexRef = useRef(0);
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsReady(true);
+    }, 150);
+    return () => clearTimeout(timer);
+  }, []);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRefs = useRef<(HTMLElement | null)[]>([]);
@@ -59,6 +67,8 @@ export default function Stats() {
   };
 
   useGSAP(() => {
+    if (!isReady) return;
+
     const mm = gsap.matchMedia();
 
     mm.add(
@@ -233,18 +243,21 @@ export default function Stats() {
         }
       }
     );
-  }, { scope: containerRef });
+
+    // Fade in container after paint/measure delay
+    gsap.to(containerRef.current, { opacity: 1, duration: 0.4 });
+  }, { scope: containerRef, dependencies: [isReady] });
 
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-screen overflow-hidden bg-transparent"
+      className="relative w-full h-screen overflow-hidden bg-transparent opacity-0"
       id="stats-archive-page"
     >
 
       {/* Left-side vertical rail */}
       <nav
-        className="fixed left-6 md:left-12 lg:left-16 top-1/2 -translate-y-1/2 z-40 hidden sm:flex flex-col gap-4 font-sans text-[10px] uppercase tracking-[0.25em] select-none"
+        className="absolute left-6 md:left-12 lg:left-16 top-1/2 -translate-y-1/2 z-40 hidden sm:flex flex-col gap-4 font-sans text-[10px] uppercase tracking-[0.25em] select-none"
         aria-label="Stats Navigation Rail"
       >
         {STATS_DATA.map((sec, idx) => {
@@ -309,7 +322,7 @@ export default function Stats() {
       </section>
 
       {/* Right-side text block / Mobile bottom text block */}
-      <aside className="fixed max-md:bottom-[8vh] max-md:left-1/2 max-md:-translate-x-1/2 max-md:w-[85vw] max-md:text-center md:right-16 lg:right-24 md:top-1/2 md:-translate-y-1/2 md:w-[320px] lg:w-[380px] text-left z-40 pointer-events-none select-none">
+      <aside className="absolute max-md:bottom-[8vh] max-md:left-1/2 max-md:-translate-x-1/2 max-md:w-[85vw] max-md:text-center md:right-16 lg:right-24 md:top-1/2 md:-translate-y-1/2 md:w-[320px] lg:w-[380px] text-left z-40 pointer-events-none select-none">
         <div className="relative w-full h-12 md:h-24">
           {STATS_DATA.map((sec, idx) => (
             <div

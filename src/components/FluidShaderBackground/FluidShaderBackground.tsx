@@ -1,7 +1,7 @@
 // src/components/FluidShaderBackground/FluidShaderBackground.tsx
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 
 const VERTEX_SHADER_SOURCE = `
@@ -33,57 +33,57 @@ const FRAGMENT_SHADER_SOURCE = `
     return length(pa - ba * h);
   }
 
-  // Rotated Figure-8 point generator
-  vec2 getFigure8Point(float theta, float phi, float A, float B) {
+  // Rotated Figure-8 point generator (optimized with precalculated cos/sin)
+  vec2 getFigure8Point(float theta, float cos_p, float sin_p, float A, float B) {
     float x_base = A * sin(theta);
     float y_base = B * sin(2.0 * theta);
-    
-    float cos_p = cos(phi);
-    float sin_p = sin(phi);
     return vec2(
       x_base * cos_p - y_base * sin_p,
       x_base * sin_p + y_base * cos_p
     );
   }
 
-  // Distance to a single Figure-8 stroke using 6 unrolled segments
+  // Distance to a single Figure-8 stroke using 6 unrolled segments (optimized)
   float distToFigure8Stroke(vec2 p, float phi, float phase, float A, float B, float startThick, float k_blend, float t) {
     float d = 100.0;
     
     float omega = 0.28; // Speed of motion (slow, majestic movement)
-    float L = 1.65;     // Sweepy stroke length (sweet-spot for trailing fade visibility)
     float theta0 = omega * t + phase;
     
-    vec2 p_prev = getFigure8Point(theta0, phi, A, B);
+    // Precompute rotation factors to avoid redundant trig functions
+    float cos_p = cos(phi);
+    float sin_p = sin(phi);
     
-    // Segment 1 (u = 0.167)
-    vec2 p_curr = getFigure8Point(theta0 - 0.167 * L, phi, A, B);
-    d = smin(d, distSegment(p, p_prev, p_curr) - startThick * pow(1.0 - 0.167, 1.5), k_blend);
+    vec2 p_prev = getFigure8Point(theta0, cos_p, sin_p, A, B);
+    
+    // Segment 1 (u = 0.167, L = 1.65, u*L = 0.27555, pow(1.0-0.167, 1.5) = 0.76027)
+    vec2 p_curr = getFigure8Point(theta0 - 0.27555, cos_p, sin_p, A, B);
+    d = smin(d, distSegment(p, p_prev, p_curr) - startThick * 0.76027, k_blend);
     p_prev = p_curr;
     
-    // Segment 2 (u = 0.333)
-    p_curr = getFigure8Point(theta0 - 0.333 * L, phi, A, B);
-    d = smin(d, distSegment(p, p_prev, p_curr) - startThick * pow(1.0 - 0.333, 1.5), k_blend);
+    // Segment 2 (u = 0.333, L = 1.65, u*L = 0.54945, pow(1.0-0.333, 1.5) = 0.54474)
+    p_curr = getFigure8Point(theta0 - 0.54945, cos_p, sin_p, A, B);
+    d = smin(d, distSegment(p, p_prev, p_curr) - startThick * 0.54474, k_blend);
     p_prev = p_curr;
     
-    // Segment 3 (u = 0.500)
-    p_curr = getFigure8Point(theta0 - 0.500 * L, phi, A, B);
-    d = smin(d, distSegment(p, p_prev, p_curr) - startThick * pow(1.0 - 0.500, 1.5), k_blend);
+    // Segment 3 (u = 0.500, L = 1.65, u*L = 0.825, pow(1.0-0.500, 1.5) = 0.35355)
+    p_curr = getFigure8Point(theta0 - 0.825, cos_p, sin_p, A, B);
+    d = smin(d, distSegment(p, p_prev, p_curr) - startThick * 0.35355, k_blend);
     p_prev = p_curr;
     
-    // Segment 4 (u = 0.667)
-    p_curr = getFigure8Point(theta0 - 0.667 * L, phi, A, B);
-    d = smin(d, distSegment(p, p_prev, p_curr) - startThick * pow(1.0 - 0.667, 1.5), k_blend);
+    // Segment 4 (u = 0.667, L = 1.65, u*L = 1.10055, pow(1.0-0.667, 1.5) = 0.19216)
+    p_curr = getFigure8Point(theta0 - 1.10055, cos_p, sin_p, A, B);
+    d = smin(d, distSegment(p, p_prev, p_curr) - startThick * 0.19216, k_blend);
     p_prev = p_curr;
     
-    // Segment 5 (u = 0.833)
-    p_curr = getFigure8Point(theta0 - 0.833 * L, phi, A, B);
-    d = smin(d, distSegment(p, p_prev, p_curr) - startThick * pow(1.0 - 0.833, 1.5), k_blend);
+    // Segment 5 (u = 0.833, L = 1.65, u*L = 1.37445, pow(1.0-0.833, 1.5) = 0.06824)
+    p_curr = getFigure8Point(theta0 - 1.37445, cos_p, sin_p, A, B);
+    d = smin(d, distSegment(p, p_prev, p_curr) - startThick * 0.06824, k_blend);
     p_prev = p_curr;
     
-    // Segment 6 (u = 1.000)
-    p_curr = getFigure8Point(theta0 - 1.000 * L, phi, A, B);
-    d = smin(d, distSegment(p, p_prev, p_curr) - startThick * pow(1.0 - 1.000, 1.5), k_blend);
+    // Segment 6 (u = 1.000, L = 1.65, u*L = 1.65, pow(1.0-1.000, 1.5) = 0.0)
+    p_curr = getFigure8Point(theta0 - 1.65, cos_p, sin_p, A, B);
+    d = smin(d, distSegment(p, p_prev, p_curr), k_blend);
     
     return d;
   }
@@ -167,12 +167,13 @@ const FRAGMENT_SHADER_SOURCE = `
   }
 `;
 
+
 export default function FluidShaderBackground() {
   const pathname = usePathname();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // if (pathname === "/team") return;
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -236,7 +237,9 @@ export default function FluidShaderBackground() {
     const startTime = performance.now();
 
     const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2.0);
+      // Capped at 1.0 because the canvas has a 10px blur filter overlay,
+      // rendering at higher DPR yields no visual gain but wastes massive GPU fill rate.
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.0);
       const rect = canvas.getBoundingClientRect();
       const width = rect.width;
       const height = rect.height;
@@ -274,18 +277,16 @@ export default function FluidShaderBackground() {
       gl.deleteShader(vertexShader);
       gl.deleteShader(fragmentShader);
     };
-  }, [pathname]);
+  }, []); // WebGL initialized once on component mount
 
-  // if (pathname === "/team") return null;
-
-  /* Scroll zoom for team page*/
-  const [bgScale, setBgScale] = useState(1);
-  const [bgOpacity, setBgOpacity] = useState(1);
-
+  /* Scroll zoom for team page - optimized using direct DOM manipulation to bypass React render passes */
   useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
     if (pathname !== "/team") {
-      setBgScale(1);
-      setBgOpacity(1);
+      container.style.transform = "scale(1)";
+      container.style.opacity = "1";
       return;
     }
 
@@ -301,8 +302,8 @@ export default function FluidShaderBackground() {
         opacity = 1 - Math.min((progress - 0.25) / 0.25, 1);
       }
 
-      setBgScale(scale);
-      setBgOpacity(opacity);
+      container.style.transform = `scale(${scale})`;
+      container.style.opacity = `${opacity}`;
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -332,7 +333,7 @@ export default function FluidShaderBackground() {
             height: "28vh",
             width: "25.06vh",
             opacity: 1.0,
-            filter: "drop-shadow(0 0 15px rgba(82, 0, 199, 0.60)) drop-shadow(0 0 40px rgba(174, 115, 242, 0.35))",
+            filter: "drop-shadow(0 0 25px rgba(174, 115, 242, 0.80)) drop-shadow(0 0 50px rgba(82, 0, 199, 0.70)) drop-shadow(0 0 15px rgba(255, 255, 255, 0.50))",
           }}
         >
           <defs>
@@ -355,9 +356,9 @@ export default function FluidShaderBackground() {
             d="M335.279 0.25L559.355 400.69L894.574 999.75H559.721L335.645 599.31L0.425781 0.25H335.279ZM335.177 999.75H0.535156L335.177 600.119V999.75ZM894.465 0.25L559.823 399.88V0.25H894.465Z"
             fill="url(#movingGradient)"
             stroke="#ffffff"
-            strokeWidth="12.0"
+            strokeWidth="24.0"
             strokeLinejoin="round"
-            strokeOpacity="0.95"
+            strokeOpacity="1.0"
           />
         </svg>
       </div>
@@ -365,7 +366,7 @@ export default function FluidShaderBackground() {
       {/* 3. Transparent WebGL Canvas. Confined to max 90% of viewport and centered. */}
       <canvas
         ref={canvasRef}
-        className="pointer-events-none fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] h-[90vh] max-w-[90vw] max-h-[90vh] opacity-80"
+        className="pointer-events-none fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] h-[90vh] max-w-[90vw] max-h-[90vh] opacity-45"
         style={{ zIndex: -15 }}
       />
 
@@ -380,8 +381,8 @@ export default function FluidShaderBackground() {
         }}
       />
 
-      {/* 5. Monochrome Film Grain Overlay. Adds a highly premium, textured grain 
-             layer over the blurred backdrop. */}
+      {/* 5. Monochrome Film Grain Overlay. Adds a highly premium, textured grain
+             layer over the blurred backdrop. Optimized to 1 octave for rasterizer performance. */}
       <svg
         className="pointer-events-none fixed inset-0 h-full w-full opacity-[0.09]"
         style={{ zIndex: -4 }}
@@ -390,7 +391,7 @@ export default function FluidShaderBackground() {
           <feTurbulence
             type="fractalNoise"
             baseFrequency="0.8"
-            numOctaves="3"
+            numOctaves="1"
             stitchTiles="stitch"
           />
           <feColorMatrix
@@ -403,25 +404,19 @@ export default function FluidShaderBackground() {
     </>
   );
 
-  // On /team, wrap everything in a scaling container
-  if (pathname === "/team") {
-    return (
-      <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: -30,
-          transform: `scale(${bgScale})`,
-          transformOrigin: "center center",
-          opacity: bgOpacity,
-          willChange: "transform, opacity",
-          pointerEvents: "none",
-        }}
-      >
-        {content}
-      </div>
-    );
-  }
-
-  return content;
+  return (
+    <div
+      ref={containerRef}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: -30,
+        transformOrigin: "center center",
+        willChange: "transform, opacity",
+        pointerEvents: "none",
+      }}
+    >
+      {content}
+    </div>
+  );
 }

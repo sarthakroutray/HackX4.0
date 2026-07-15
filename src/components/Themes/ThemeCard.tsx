@@ -182,7 +182,7 @@ export default function ThemeCard({ card }: ThemeCardProps) {
             <div className="relative z-10 flex flex-col items-center justify-center flex-grow py-4">
               <div className="text-center rotate-[-5deg] transition-all duration-500 group-hover:rotate-0">
                 <span className="block font-mono text-[9px] tracking-[0.3em] text-purple-400 uppercase font-bold">EDTECH</span>
-                <span className="block font-sans text-4xl font-black tracking-tighter text-purple-500 leading-none my-1 group-hover:text-purple-400 transition-colors duration-300">
+                <span className="block font-sans text-4xl font-black tracking-normal text-purple-500 leading-none my-1 group-hover:text-purple-400 transition-colors duration-300">
                   VR CORE
                 </span>
                 <span className="block font-mono text-[9px] tracking-[0.2em] text-white/40 uppercase font-semibold">IMMERSIVE</span>
@@ -248,7 +248,7 @@ export default function ThemeCard({ card }: ThemeCardProps) {
             <div className="absolute inset-0 opacity-10 bg-[linear-gradient(45deg,#d242d7_25%,transparent_25%,transparent_50%,#d242d7_50%,#d242d7_75%,transparent_75%,transparent)] bg-[size:30px_30px]" />
             
             <div className="relative z-10 flex justify-between items-center">
-              <span className="text-xl font-bold tracking-tighter text-magenta-500 font-mono">HX</span>
+              <span className="text-xl font-bold tracking-normal text-magenta-500 font-mono">HX</span>
               <span className="text-[7px] font-mono uppercase tracking-[0.2em] text-magenta-400/80 font-bold">TRACK 07</span>
             </div>
 

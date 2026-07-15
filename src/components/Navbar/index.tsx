@@ -339,7 +339,7 @@ export default function Navbar() {
                             onClick={() => setIsOpen(false)}
                             onMouseEnter={() => setHoveredIdx(idx)}
                             onMouseLeave={() => setHoveredIdx(null)}
-                            className="block text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tighter text-[#F9F6F0] font-sans cursor-pointer select-none"
+                            className="block text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-normal text-[#F9F6F0] font-sans cursor-pointer select-none"
                           >
                             {item.label}
                           </Link>

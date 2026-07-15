@@ -54,7 +54,7 @@ export default function Home() {
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="flex flex-col items-center justify-center font-sans font-medium uppercase tracking-tighter leading-[0.85] text-center text-[#FAF8F5]"
+            className="flex flex-col items-center justify-center font-sans font-medium uppercase tracking-normal leading-[0.85] text-center text-[#FAF8F5]"
             style={{
               fontSize: "clamp(1.8rem, 5.4vw, 5.6rem)",
             }}

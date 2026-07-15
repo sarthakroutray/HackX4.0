@@ -1,21 +1,19 @@
 import type { Metadata } from "next";
-import { Inter, Instrument_Serif } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FluidShaderBackground from "@/components/FluidShaderBackground/FluidShaderBackground";
 import LenisProvider from "@/components/LenisProvider";
 
-const inter = Inter({
-  subsets: ["latin"],
+const oskariG2Sans = localFont({
+  src: "../../public/assets/fonts/OskariG2Medium.otf",
   variable: "--font-sans",
 });
 
-const instrumentSerif = Instrument_Serif({
-  subsets: ["latin"],
+const instrumentSerifItalic = localFont({
+  src: "../../public/assets/fonts/InstrumentSerif-Italic.ttf",
   variable: "--font-serif",
-  style: ["normal", "italic"],
-  weight: "400",
 });
 
 export const metadata: Metadata = {
@@ -29,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${instrumentSerif.variable}`}>
+    <html lang="en" className={`${oskariG2Sans.variable} ${instrumentSerifItalic.variable}`}>
       <body className="antialiased flex flex-col min-h-screen justify-between bg-transparent text-white relative">
         <LenisProvider>
           <FluidShaderBackground />

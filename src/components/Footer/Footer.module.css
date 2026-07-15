@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Instrument+Serif:ital@1&display=swap');
 
 .site-footer{
   --bg: #0c0a16;
@@ -14,10 +13,15 @@
   position: relative;
   background: var(--bg);
   overflow: hidden;
-  padding: clamp(20px, 3vw, 40px) clamp(20px, 4vw, 56px);
+  padding-top: clamp(100px, 12vw, 160px);
+  padding-bottom: clamp(20px, 3vw, 40px);
+  padding-left: clamp(20px, 4vw, 56px);
+  padding-right: clamp(20px, 4vw, 56px);
   display: flex;
   flex-direction: column;
-  font-family: 'Archivo', sans-serif;
+  justify-content: space-between;
+  min-height: 100vh;
+  font-family: var(--font-sans), sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -58,7 +62,7 @@
 }
 .hero-headline .line{ display:block; }
 .hero-headline .future{
-  font-family: 'Instrument Serif', serif;
+  font-family: var(--font-serif), serif;
   font-style: italic;
   font-weight: 400;
   letter-spacing: 0;
@@ -75,7 +79,7 @@
 }
 
 .team-card{
-  text-align: center;
+  text-align: left;
 }
 .team-name{
   color: var(--cream);
@@ -110,7 +114,7 @@
 }
 
 .contact-us-label{
-  font-family: 'Instrument Serif', serif;
+  font-family: var(--font-serif), serif;
   font-style: italic;
   font-size: 18px;
   color: var(--gray);

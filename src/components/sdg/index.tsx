@@ -364,7 +364,7 @@ export default function SdgComponent() {
           }
         }
       });
-    }, sectionRef);
+    }, sectionRef.current || undefined);
 
     return () => {
       ctx.revert();

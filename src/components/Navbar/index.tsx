@@ -141,12 +141,12 @@ export default function Navbar() {
 
   const menuItems = [
     { label: "Home", href: "/" },
-    { label: "About Us", href: "#about" },
-    { label: "Timeline", href: "#timeline" },
-    { label: "Ambassador", href: "#ambassador" },
-    { label: "Team", href: "#team" },
-    { label: "Gallery", href: "#gallery" },
-    { label: "Contact", href: "#contact" },
+    { label: "About Us", href: "/about" },
+    { label: "Timeline", href: "/timeline" },
+    { label: "Ambassador", href: "/ambassador" },
+    { label: "Team", href: "/team" },
+    { label: "Gallery", href: "/gallery" },
+    { label: "Contact", href: "/contact" },
   ];
 
   // Wipe animation

@@ -183,13 +183,28 @@ export default function Stats() {
               scale: 1,
               opacity: 0.15,
               filter: "grayscale(100%)",
-              zIndex: 5,
+              zIndex: 1,
               rotation: 0,
               duration: 1,
               ease: "none",
             }, labelFrom);
 
-            // Entering image (i + 1) moves from Bottom-Right to active Center (constant scale 1.0)
+            // Previous exited image (i - 1) fades completely to 0 as it moves further Top-Left
+            if (i - 1 >= 0) {
+              tl.to(imageRefs.current[i - 1], {
+                x: -xOffsetVal * 2,
+                y: -yOffsetVal * 2,
+                scale: 1,
+                opacity: 0,
+                filter: "grayscale(100%)",
+                zIndex: 1,
+                rotation: 0,
+                duration: 1,
+                ease: "none",
+              }, labelFrom);
+            }
+
+            // Next preview image (i + 1) scales up and moves to Center-Stage (grayscale 0%, opacity 1.0, zIndex 10)
             tl.to(imageRefs.current[i + 1], {
               x: 0,
               y: 0,
@@ -201,23 +216,6 @@ export default function Stats() {
               duration: 1,
               ease: "none",
             }, labelFrom);
-
-            // Previous image (i - 1) moves from Top-Left to Far Top-Left (further straight along slanted line offscreen, constant scale 1.0)
-            if (i > 0) {
-              const farExitX = -2 * xOffsetVal;
-              const farExitY = -2 * yOffsetVal;
-              tl.to(imageRefs.current[i - 1], {
-                x: farExitX,
-                y: farExitY,
-                scale: 1,
-                opacity: 0,
-                filter: "grayscale(100%)",
-                zIndex: 1,
-                rotation: 0,
-                duration: 1,
-                ease: "none",
-              }, labelFrom);
-            }
 
             // Next next image (i + 2) moves from Far Bottom-Right to Bottom-Right preview zone (constant scale 1.0)
             if (i + 2 < STATS_DATA.length) {
@@ -236,7 +234,7 @@ export default function Stats() {
           }
         }
       );
-    }, containerRef);
+    }, containerRef.current || undefined);
 
     return () => ctx.revert();
   }, []);

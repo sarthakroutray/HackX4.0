@@ -160,7 +160,7 @@ export default function Themes() {
           animation: timeline,
           invalidateOnRefresh: true,
         });
-      }, containerRef);
+      }, containerRef.current || undefined);
     };
 
     // Delay initialization to guarantee layout painting is completed

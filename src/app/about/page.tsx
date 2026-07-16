@@ -51,21 +51,21 @@ export default function AboutPage() {
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="flex flex-col items-center justify-center font-sans font-black uppercase tracking-tighter leading-[0.82] text-center"
+            className="flex flex-col items-center justify-center font-sans font-black uppercase tracking-normal leading-[0.82] text-center"
             style={{
               fontSize: "clamp(2rem, 5.8vw, 6.2rem)",
             }}
           >
-            <div className="overflow-hidden py-1 md:py-2">
+            <div className="overflow-hidden py-1 md:py-2 leading-normal px-4">
               <motion.span
                 variants={lineVariants}
-                className="block origin-bottom font-serif italic font-normal text-white/50 lowercase tracking-normal"
+                className="block origin-bottom font-serif italic font-normal text-white/50 lowercase tracking-normal leading-normal"
               >
                 why participate in
               </motion.span>
             </div>
             
-            <div className="overflow-hidden py-1 md:py-2">
+            <div className="overflow-hidden py-1 md:py-2 px-4">
               <motion.span
                 variants={lineVariants}
                 className="block origin-bottom text-white font-extrabold"
@@ -74,10 +74,10 @@ export default function AboutPage() {
               </motion.span>
             </div>
 
-            <div className="overflow-hidden py-1 md:py-2">
+            <div className="overflow-hidden py-1 md:py-2 px-4">
               <motion.span
                 variants={lineVariants}
-                className="block origin-bottom text-transparent bg-clip-text bg-gradient-to-r from-[#D242D7] via-[#B86EF9] to-white/95 font-black shadow-sm"
+                className="block origin-bottom text-transparent bg-clip-text bg-gradient-to-r from-[#D242D7] via-[#B86EF9] to-white/95 font-black"
               >
                 HACKX 4.0?
               </motion.span>

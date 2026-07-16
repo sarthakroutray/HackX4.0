@@ -5,6 +5,8 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 
+import FAQ from "@/components/FAQ";
+
 // Register ScrollTrigger plugin
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -99,7 +101,6 @@ const CONVENERS = [
 ];
 
 export default function Contacts() {
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Animation refs
@@ -110,7 +111,6 @@ export default function Contacts() {
   const transitSectionRef = useRef<HTMLDivElement>(null);
   const mapSectionRef = useRef<HTMLDivElement>(null);
   const convenersSectionRef = useRef<HTMLDivElement>(null);
-  const faqSectionRef = useRef<HTMLDivElement>(null);
 
   // Card interactive mouse tilt and cursor glow (Awwwards style)
   const handleCardInteractionMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -229,46 +229,7 @@ export default function Contacts() {
       tl.fromTo(cards, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: "power2.out" }, "-=0.3");
     }
 
-    // 7. Scroll triggered animation for FAQs
-    if (faqSectionRef.current) {
-      const title = faqSectionRef.current.querySelector(".section-title");
-      const items = faqSectionRef.current.querySelectorAll(".faq-item");
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: faqSectionRef.current,
-          start: "top 80%",
-          toggleActions: "play none none none"
-        }
-      });
-      if (title) tl.fromTo(title, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 });
-      tl.fromTo(items, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, stagger: 0.08, ease: "power2.out" }, "-=0.3");
-    }
   }, { scope: containerRef });
-
-  // FAQ Accordion Expand/Collapse height transitions
-  useGSAP(() => {
-    FAQ_ITEMS.forEach((_, idx) => {
-      const content = document.getElementById(`faq-content-${idx}`);
-      if (!content) return;
-      if (openFaq === idx) {
-        gsap.to(content, {
-          height: "auto",
-          opacity: 1,
-          duration: 0.5,
-          ease: "power3.out",
-          overwrite: "auto"
-        });
-      } else {
-        gsap.to(content, {
-          height: 0,
-          opacity: 0,
-          duration: 0.4,
-          ease: "power3.inOut",
-          overwrite: "auto"
-        });
-      }
-    });
-  }, [openFaq]);
 
   return (
     <div ref={containerRef} className="w-full text-white font-sans relative overflow-x-hidden">
@@ -544,65 +505,14 @@ export default function Contacts() {
       </section>
 
       {/* SECTION 4: FREQUENTLY ASKED QUESTIONS */}
-      <section ref={faqSectionRef} className="py-24 px-6 md:px-12 lg:px-20 max-w-[1000px] mx-auto relative z-20">
-        <div className="section-title mb-16 flex flex-col gap-2 text-center">
-          <h2 className="text-3xl md:text-5xl font-black font-sans uppercase tracking-tight text-white">
-            FREQUENTLY ASKED QUESTIONS
-          </h2>
-        </div>
-
-        <div className="border-t border-white/10 w-full">
-          {FAQ_ITEMS.map((item, idx) => {
-            const isOpen = openFaq === idx;
-            return (
-              <div
-                key={idx}
-                onClick={() => setOpenFaq(isOpen ? null : idx)}
-                className="faq-item border-b border-white/10 py-6 md:py-8 cursor-pointer group select-none transition-all duration-300 hover:bg-white/[0.01]"
-              >
-                <div className="flex items-center justify-between gap-6 px-4">
-                  <div className="flex items-center gap-6">
-                    <span className="font-mono text-xs text-purple-500/50 group-hover:text-purple-400 transition-colors duration-300 font-medium">
-                      {String(idx + 1).padStart(2, "0")}
-                    </span>
-                    <span className="font-sans font-bold text-base md:text-lg text-white/80 group-hover:text-white transition-all duration-300 group-hover:translate-x-1.5 block">
-                      {item.question}
-                    </span>
-                  </div>
-
-                  {/* Plus/Minus Rotating Icon */}
-                  <span className="relative flex items-center justify-center w-6 h-6 flex-shrink-0 text-white/40 group-hover:text-white transition-colors duration-300">
-                    <span
-                      style={{
-                        transform: isOpen ? "rotate(45deg)" : "rotate(0deg)",
-                        transition: "transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)"
-                      }}
-                      className="absolute w-4 h-[1.5px] bg-current"
-                    />
-                    <span
-                      style={{
-                        transform: isOpen ? "rotate(135deg)" : "rotate(90deg)",
-                        transition: "transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)"
-                      }}
-                      className="absolute w-4 h-[1.5px] bg-current"
-                    />
-                  </span>
-                </div>
-
-                {/* Inner Expandable Details */}
-                <div
-                  id={`faq-content-${idx}`}
-                  className="overflow-hidden h-0 opacity-0 px-10 md:px-14"
-                >
-                  <p className="font-sans text-white/60 text-sm md:text-base leading-relaxed pt-5 pr-8 font-light">
-                    {item.answer}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
+      <FAQ 
+        data={FAQ_ITEMS} 
+        heading={
+          <>
+            Frequently Asked <br />Questions.
+          </>
+        } 
+      />
 
     </div>
   );

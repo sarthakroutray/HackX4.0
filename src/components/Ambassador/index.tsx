@@ -6,6 +6,7 @@ import Link from "next/link";
 import Themes from "@/components/Themes";
 import PuzzleJoin from "@/components/PuzzleJoin";
 import FAQ from "@/components/FAQ";
+import WhyApply from "@/components/Ambassador/WhyApply";
 
 const AMBASSADOR_FAQ_DATA = [
   {
@@ -144,6 +145,11 @@ export default function Ambassador() {
             </Link>
           </motion.div>
         </div>
+      </section>
+
+      {/* Why Should You Apply Section */}
+      <section id="why-apply" className="relative w-full z-10">
+        <WhyApply />
       </section>
 
       {/* Themes Component Section */}

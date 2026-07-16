@@ -47,29 +47,17 @@ const TRANSIT_INFO = [
   {
     type: "BY TRAIN",
     desc: "Book tickets from IRCTC. The campus is 25 KMs from Jaipur Railway Station and cab fare is around ₹500–₹600.",
-    icon: (
-      <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1zM3 10h10M5 14h.01M9 14h.01M17 9l4 4m0 0l-4 4m4-4H13" />
-      </svg>
-    )
+    icon: <i className="fa-solid fa-train-tram text-purple-400 text-[20px] w-6 h-6 flex items-center justify-center"></i>
   },
   {
     type: "BY AIR",
     desc: "Flights from Delhi, Mumbai, Hyderabad, Bangalore. The campus is 35 KMs from Jaipur Airport.",
-    icon: (
-      <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-      </svg>
-    )
+    icon: <i className="fa-solid fa-plane-departure text-purple-400 text-[20px] w-6 h-6 flex items-center justify-center"></i>
   },
   {
     type: "BY BUS",
     desc: "Only if nearby. Sindhi Camp is 30 KMs away. Auto fare is approx ₹400–₹450.",
-    icon: (
-      <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-      </svg>
-    )
+    icon: <i className="fa-solid fa-bus text-purple-400 text-[20px] w-6 h-6 flex items-center justify-center"></i>
   }
 ];
 
@@ -232,7 +220,7 @@ export default function Contacts() {
   }, { scope: containerRef });
 
   return (
-    <div ref={containerRef} className="w-full text-white font-sans relative overflow-x-hidden">
+    <div ref={containerRef} className="w-full text-white font-sans relative overflow-x-clip">
 
       {/* SECTION 1: HERO (Minimal editorial layout) */}
       <section className="relative w-full min-h-[85vh] lg:min-h-0 flex flex-col justify-between pt-2 pb-6 px-6 md:px-12 lg:px-20 max-w-[1600px] mx-auto">
@@ -244,11 +232,11 @@ export default function Contacts() {
           <div ref={heroLeftRef} className="lg:col-span-7 flex flex-col justify-between gap-12 lg:min-h-[420px]">
 
             {/* 3-Column Info Rows */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-[11px] tracking-wider leading-relaxed">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-[13px] tracking-wider leading-relaxed">
 
               {/* Col 1: Venue/Address */}
               <div className="hero-fade-item flex flex-col gap-3">
-                <span className="text-white/40 uppercase font-sans font-semibold text-[10px]">Venue</span>
+                <span className="text-white/40 uppercase font-sans font-semibold text-[12px]">Venue</span>
                 <div className="flex flex-col gap-1 text-white/90 font-sans">
                   <p>MANIPAL UNIVERSITY JAIPUR</p>
                   <p>JAIPUR-AJMER EXPRESS HWY</p>
@@ -265,7 +253,7 @@ export default function Contacts() {
 
               {/* Col 2: Enquiries & Quick Contacts */}
               <div className="hero-fade-item flex flex-col gap-3">
-                <span className="text-white/40 uppercase font-sans font-semibold text-[10px]">General Enquiries</span>
+                <span className="text-white/40 uppercase font-sans font-semibold text-[12px]">General Enquiries</span>
                 <div className="flex flex-col gap-4 text-white/90 font-sans">
                   <div>
                     <a
@@ -277,7 +265,7 @@ export default function Contacts() {
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <span className="text-white/30 uppercase text-[9px] font-semibold tracking-widest">Student Conveners</span>
+                    <span className="text-white/30 uppercase text-[11px] font-semibold tracking-widest">Student Conveners</span>
                     <div className="flex flex-col gap-1 text-white/60">
                       <p className="text-white/80 font-medium">Aryan Verma</p>
                       <a href="mailto:vermaryan1@gmail.com" className="hover:text-white transition-colors underline decoration-white/20 underline-offset-2 break-all">vermaryan1@gmail.com</a>
@@ -291,7 +279,7 @@ export default function Contacts() {
 
               {/* Col 3: Follow Links */}
               <div className="hero-fade-item flex flex-col gap-3">
-                <span className="text-white/40 uppercase font-sans font-semibold text-[10px]">Follow</span>
+                <span className="text-white/40 uppercase font-sans font-semibold text-[12px]">Follow</span>
                 <div className="flex flex-col gap-2 text-white/90 font-sans font-semibold">
                   <a
                     href="https://instagram.com"
@@ -322,12 +310,6 @@ export default function Contacts() {
 
             </div>
 
-            {/* Bottom Paragraph Description */}
-            <div className="hero-fade-item max-w-[540px] mt-4">
-              <p className="text-[10px] md:text-[11px] text-white/50 tracking-widest leading-relaxed uppercase font-sans">
-                INNOVATIVE, COLLABORATIVE, BOUNDLESS — THESE ARE THE HALLMARKS FOR WHICH MUJHACKX IS CELEBRATED. WHETHER BUILDING GROUNDBREAKING CODE OR ARCHITECTING FUTURE-PROOF DESIGNS.
-              </p>
-            </div>
 
           </div>
 
@@ -374,7 +356,7 @@ export default function Contacts() {
       {/* SECTION 2: VENUE & DIRECTIONS */}
       <section ref={transitSectionRef} className="py-24 px-6 md:px-12 lg:px-20 max-w-[1600px] mx-auto relative z-20">
         <div className="section-title mb-16 flex flex-col gap-2">
-          <h2 className="text-3xl md:text-5xl font-black font-sans uppercase tracking-tight text-white">REACHING THE CAMPUS</h2>
+          <h2 className="text-3xl md:text-5xl font-black font-sans uppercase tracking-wide text-white">REACHING THE CAMPUS</h2>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
@@ -444,7 +426,7 @@ export default function Contacts() {
       {/* SECTION 3: STUDENT CONVENERS & SUPPORT */}
       <section ref={convenersSectionRef} className="py-24 px-6 md:px-12 lg:px-20 max-w-[1600px] mx-auto relative z-20">
         <div className="section-title mb-16 flex flex-col gap-2">
-          <h2 className="text-3xl md:text-5xl font-black font-sans uppercase tracking-tight text-white">STUDENT CONVENERS</h2>
+          <h2 className="text-3xl md:text-5xl font-black font-sans uppercase tracking-wide text-white">STUDENT CONVENERS</h2>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
@@ -486,9 +468,7 @@ export default function Contacts() {
                 className="mt-8 flex items-center justify-center w-12 h-12 rounded-full border border-white/15 bg-white/5 hover:bg-white hover:text-black text-white transition-all duration-300 ease-out relative z-10"
                 aria-label={`Call ${c.name}`}
               >
-                <svg className="w-5 h-5 fill-current pointer-events-none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M20 22.622a18.995 18.995 0 01-11.89-4.887A18.99 18.99 0 013.22 5.89 10.978 10.978 0 016.42 1.34a2 2 0 012.72.68l2.25 3.86a2 2 0 01-.48 2.5l-1.63 1.24a13.996 13.996 0 005.12 5.12l1.24-1.63a2 2 0 012.5-.48l3.86 2.25a2 2 0 01.68 2.72c-.75 1.5-2.07 2.65-3.68 3.02z" />
-                </svg>
+                <i className="fa-solid fa-phone text-[16px] pointer-events-none"></i>
               </a>
             </div>
           ))}

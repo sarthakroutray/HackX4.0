@@ -103,16 +103,7 @@ export default function Home() {
           </motion.div>
         </div>
 
-        {/* Bottom Center Scroll Indicator (corresponds to circle and vertical line) */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.0, duration: 0.8 }}
-          className="absolute bottom-0 left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none select-none z-10"
-        >
-          <span className="w-1.5 h-1.5 rounded-full border border-[#FAF8F5]/40 mb-2 animate-pulse"></span>
-          <div className="w-[1px] h-16 md:h-20 bg-gradient-to-b from-[#FAF8F5]/30 via-[#FAF8F5]/10 to-transparent"></div>
-        </motion.div>
+
 
       </div>
 

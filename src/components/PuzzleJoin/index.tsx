@@ -95,7 +95,7 @@ export default function PuzzleJoin() {
 
       {/* Title & Heading */}
       <div className="relative z-10 text-center mb-12 max-w-2xl px-4 flex flex-col items-center">
-        <h2 className="font-sans font-black text-3xl md:text-5xl uppercase tracking-tight text-white leading-[1.15]">
+        <h2 className="font-sans font-black text-3xl md:text-5xl uppercase tracking-wide text-white leading-[1.15]">
           BECOME THE CAMPUS AMBASSADOR!
         </h2>
       </div>
@@ -113,11 +113,21 @@ export default function PuzzleJoin() {
         >
           {/* SVG Shape */}
           <svg viewBox="0 0 240 240" className="w-full h-full drop-shadow-[0_0_20px_rgba(255,255,255,0.08)]">
+            <defs>
+              <radialGradient id="puzzle-grad-left" cx="40%" cy="0%" r="85%" fx="40%" fy="0%">
+                <stop offset="0%" stopColor="#662FAC" />
+                <stop offset="35%" stopColor="#54258F" />
+                <stop offset="60%" stopColor="#4A2A71" />
+                <stop offset="80%" stopColor="#30186A" />
+                <stop offset="100%" stopColor="#21124D" />
+              </radialGradient>
+            </defs>
             <path
               d="M 30,30 L 100,30 C 100,45 110,55 120,55 C 130,55 140,45 140,30 L 210,30 L 210,100 C 195,100 185,110 185,120 C 185,130 195,140 210,140 L 210,210 L 140,210 C 140,225 130,235 120,235 C 110,235 100,225 100,210 L 30,210 L 30,140 C 15,140 5,130 5,120 C 5,110 15,100 30,100 Z"
-              fill="#FFFFFF"
-              stroke="#7801FF"
-              strokeWidth="3.5"
+              fill="url(#puzzle-grad-left)"
+              stroke="#F9F6F0"
+              strokeWidth="1.2"
+              strokeOpacity="0.25"
               className="transition-all duration-500"
             />
           </svg>
@@ -145,11 +155,21 @@ export default function PuzzleJoin() {
         >
           {/* SVG Shape */}
           <svg viewBox="0 0 240 240" className="w-full h-full drop-shadow-[0_0_20px_rgba(255,255,255,0.08)]">
+            <defs>
+              <radialGradient id="puzzle-grad-right" cx="40%" cy="0%" r="85%" fx="40%" fy="0%">
+                <stop offset="0%" stopColor="#662FAC" />
+                <stop offset="35%" stopColor="#54258F" />
+                <stop offset="60%" stopColor="#4A2A71" />
+                <stop offset="80%" stopColor="#30186A" />
+                <stop offset="100%" stopColor="#21124D" />
+              </radialGradient>
+            </defs>
             <path
               d="M 30,30 L 100,30 C 100,15 110,5 120,5 C 130,5 140,15 140,30 L 210,30 L 210,100 C 195,100 185,110 185,120 C 185,130 195,140 210,140 L 210,210 L 140,210 C 140,195 130,185 120,185 C 110,185 100,195 100,210 L 30,210 L 30,140 C 15,140 5,130 5,120 C 5,110 15,100 30,100 Z"
-              fill="#FFFFFF"
-              stroke="#D242D7"
-              strokeWidth="3.5"
+              fill="url(#puzzle-grad-right)"
+              stroke="#F9F6F0"
+              strokeWidth="1.2"
+              strokeOpacity="0.25"
               className="transition-all duration-500"
             />
           </svg>

@@ -1,36 +1,17 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import styles from "./WhyHackX.module.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// How much scroll distance (in vh) is dedicated to each item's "turn" as the
-// active/expanded one, and how much extra empty scroll to leave at the end
-// (once everything is collapsed) before the section releases and the page
-// moves on. Tune these to taste.
-const ITEM_VH = 95;
-const BUFFER_VH = 70;
-
-// How much of the *preceding* item's scroll window (in vh) is spent sliding
-// the next item up into place. The reveal is a continuous function of
-// scroll position across this whole span -- not a snap -- so the item is
-// genuinely visible (partially faded/offset) the entire time it travels.
-const ENTRANCE_VH = 65;
-
-// How far below its resting spot a "not yet arrived" item starts, as a
-// fraction of the viewport height. This is what makes it originate from
-// the actual bottom edge of the screen (like lenis.dev) instead of from
-// somewhere already inside the stage -- recomputed on resize.
-const ENTRANCE_OFFSET_VH_FRACTION = 0.8;
-const ENTRANCE_OFFSET_MIN_PX = 480;
-
-// How aggressively the animated progress chases the raw scroll progress
-// each frame (lower = smoother/heavier, higher = snappier/more literal).
-const SMOOTHING = 0.12;
+// Timeline configuration units
+const SEGMENT_DURATION = 10;
+const TRANSITION_DURATION = 4.5;
+const SLIDE_START_OFFSET = 8;
+const BUFFER_DURATION = 7.4;
 
 const ITEMS = [
   {
@@ -71,131 +52,145 @@ const ITEMS = [
   },
 ];
 
+// Constants for layout heights
+const ITEM_VH = 95;
+const BUFFER_VH = 70;
 const TOTAL_VH = ITEMS.length * ITEM_VH + BUFFER_VH;
-const ACTIVE_WINDOW = (ITEMS.length * ITEM_VH) / TOTAL_VH; // fraction of scroll before the buffer/hold zone
 
-const easeOut = gsap.parseEase("power2.out");
+const ENTRANCE_OFFSET_VH_FRACTION = 0.8;
+const ENTRANCE_OFFSET_MIN_PX = 480;
 
 export default function WhyHackX() {
   const containerRef = useRef<HTMLDivElement>(null);
   const spacerRef = useRef<HTMLDivElement>(null);
   const progressLineRef = useRef<HTMLDivElement>(null);
-  // Refs to each item's wrapper -- the entrance animation writes directly to
-  // these via GSAP, imperatively, on every scroll tick. It deliberately does
-  // NOT go through React state/inline-style, so nothing else re-rendering
-  // (e.g. hover) can ever stomp on it mid-animation.
+  
+  // Refs to each item's wrapper for scroll entrance translations
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // Which item is currently "active" (fully expanded) -- only used for the
-  // title-dim / description-expand treatment, not for entrance visibility.
-  const [activeIndex, setActiveIndex] = useState<number | null>(0);
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  // Refs for the title, description wrappers and description texts to animate via GSAP
+  const titleRefs = useRef<(HTMLHeadingElement | null)[]>([]);
+  const descWrapRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const descTextRefs = useRef<(HTMLParagraphElement | null)[]>([]);
 
+  // Entirely scroll-bound animations built into a single scrubbed GSAP timeline.
+  // This removes React activeIndex state triggers, preventing snappy snaps or re-render flashes.
   useGSAP(
     () => {
       const mm = gsap.matchMedia();
 
       mm.add("(min-width: 769px)", () => {
-        gsap.fromTo(
-          progressLineRef.current,
-          { scaleY: 0 },
-          {
-            scaleY: 1,
-            ease: "none",
-            scrollTrigger: {
-              trigger: containerRef.current,
-              start: "top top",
-              end: "bottom bottom",
-              scrub: true,
-            },
-          }
-        );
-
-        // Single source of truth for both the discrete "active item" state
-        // and the continuous per-item entrance. `currentProgress` eases
-        // toward the raw scroll progress every animation frame (via
-        // gsap.ticker), which is what makes the reveal feel weighted and
-        // smooth instead of mechanically snapping to the scroll position.
-        let targetProgress = 0;
-        let currentProgress = 0;
-        let lastActiveIndex: number | null = 0;
         let offsetPx = Math.max(
           window.innerHeight * ENTRANCE_OFFSET_VH_FRACTION,
           ENTRANCE_OFFSET_MIN_PX
         );
 
-        const applyFrame = () => {
-          currentProgress += (targetProgress - currentProgress) * SMOOTHING;
-          if (Math.abs(targetProgress - currentProgress) < 0.0005) {
-            currentProgress = targetProgress;
-          }
-          const p = currentProgress;
-
-          // Discrete: which item is the active/expanded one right now.
-          const nextActive =
-            p >= ACTIVE_WINDOW
-              ? null
-              : Math.min(
-                  ITEMS.length - 1,
-                  Math.max(0, Math.floor((p / ACTIVE_WINDOW) * ITEMS.length))
-                );
-          if (nextActive !== lastActiveIndex) {
-            lastActiveIndex = nextActive;
-            setActiveIndex(nextActive);
-          }
-
-          // Continuous: every item's entrance is a direct function of `p`,
-          // so scrubbing forward or backward at any speed always renders
-          // the correct in-between frame -- there is no scroll speed at
-          // which an item can skip straight from hidden to arrived.
-          // Position only -- opacity is never touched here, so color/
-          // brightness stays constant while an item travels (no fade), and
-          // the "dimmed vs active" look stays purely a function of the
-          // title's own opacity, identical for every item regardless of
-          // where it is in its entrance.
-          ITEMS.forEach((_, i) => {
-            const el = itemRefs.current[i];
-            if (!el) return;
-
-            const revealEnd =
-              i === 0 ? ENTRANCE_VH / TOTAL_VH : (i * ITEM_VH) / TOTAL_VH; // item 0 gets its own reveal window at the very top; the rest reveal exactly when they become active
-            const revealStart = Math.max(0, revealEnd - ENTRANCE_VH / TOTAL_VH);
-            const span = revealEnd - revealStart || 1;
-            const t = easeOut(Math.min(1, Math.max(0, (p - revealStart) / span)));
-
-            gsap.set(el, { y: offsetPx * (1 - t) });
-          });
-        };
-
-        const st = ScrollTrigger.create({
-          trigger: spacerRef.current,
-          start: "top top",
-          end: "bottom bottom",
-          onUpdate: (self) => {
-            targetProgress = self.progress;
-          },
-          onRefresh: (self) => {
-            offsetPx = Math.max(
-              window.innerHeight * ENTRANCE_OFFSET_VH_FRACTION,
-              ENTRANCE_OFFSET_MIN_PX
-            );
-            targetProgress = self.progress;
-            currentProgress = self.progress;
-            applyFrame();
+        // Create main timeline linked to ScrollTrigger
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: spacerRef.current,
+            start: "top top",
+            end: "bottom bottom",
+            scrub: 1.6, // Silky catching-up interpolation
           },
         });
 
-        // Initialize immediately so nothing waits for the first scroll
-        // event (handles page loads that land mid-scroll, etc).
-        targetProgress = st.progress;
-        currentProgress = st.progress;
-        applyFrame();
+        const totalDuration = ITEMS.length * SEGMENT_DURATION + BUFFER_DURATION;
 
-        gsap.ticker.add(applyFrame);
+        // 1. Progress line scale animation
+        tl.fromTo(
+          progressLineRef.current,
+          { scaleY: 0 },
+          { scaleY: 1, ease: "none", duration: totalDuration },
+          0
+        );
 
-        return () => {
-          gsap.ticker.remove(applyFrame);
-        };
+        // Initialize element styles immediately to handle custom scroll positions on load
+        ITEMS.forEach((_, i) => {
+          const itemEl = itemRefs.current[i];
+          const titleEl = titleRefs.current[i];
+          const descWrapEl = descWrapRefs.current[i];
+          const descTextEl = descTextRefs.current[i];
+
+          if (!itemEl || !titleEl || !descWrapEl || !descTextEl) return;
+
+          gsap.set(itemEl, { y: i === 0 ? 0 : offsetPx });
+          gsap.set(titleEl, { opacity: i === 0 ? 1 : 0.5, color: "#ff7695" });
+          gsap.set(descWrapEl, { height: i === 0 ? "auto" : 0 });
+          gsap.set(descTextEl, {
+            opacity: i === 0 ? 1 : 0,
+            filter: i === 0 ? "blur(0px)" : "blur(10px)",
+            y: i === 0 ? 0 : 10,
+          });
+        });
+
+        // 2. Programmatically build scroll transitions for each item
+        ITEMS.forEach((_, i) => {
+          const itemEl = itemRefs.current[i];
+          const titleEl = titleRefs.current[i];
+          const descWrapEl = descWrapRefs.current[i];
+          const descTextEl = descTextRefs.current[i];
+
+          if (!itemEl || !titleEl || !descWrapEl || !descTextEl) return;
+
+          // A. Item entrance slide-up (except item 0 which starts in place)
+          if (i > 0) {
+            const entranceStart = (i - 1) * SEGMENT_DURATION + (SEGMENT_DURATION - SLIDE_START_OFFSET);
+            tl.fromTo(
+              itemEl,
+              { y: offsetPx },
+              { y: 0, ease: "power3.out", duration: SLIDE_START_OFFSET },
+              entranceStart
+            );
+          }
+
+          // B. Active item transition (open description, highlight title)
+          if (i > 0) {
+            const actStart = i * SEGMENT_DURATION;
+            tl.to(titleEl, { opacity: 1, color: "#ff7695", ease: "power3.out", duration: TRANSITION_DURATION }, actStart);
+            tl.to(descWrapEl, { height: "auto", ease: "power3.out", duration: TRANSITION_DURATION }, actStart);
+            tl.to(descTextEl, {
+              opacity: 1,
+              filter: "blur(0px)",
+              y: 0,
+              ease: "power3.out",
+              duration: TRANSITION_DURATION,
+            }, actStart);
+          }
+
+          // C. Collapsed/Deactivated item transition (close description, dim title)
+          const deactStart = (i + 1) * SEGMENT_DURATION;
+          if (i < ITEMS.length - 1) {
+            tl.to(titleEl, { opacity: 0.5, color: "#ff7695", ease: "power3.inOut", duration: TRANSITION_DURATION }, deactStart);
+            tl.to(descWrapEl, { height: 0, ease: "power3.inOut", duration: TRANSITION_DURATION }, deactStart);
+            tl.to(descTextEl, {
+              opacity: 0,
+              filter: "blur(10px)",
+              y: 10,
+              ease: "power3.inOut",
+              duration: TRANSITION_DURATION,
+            }, deactStart);
+          } else {
+            // Last item collapses at the very end of active scroll range
+            tl.to(titleEl, { opacity: 0.5, color: "#ff7695", ease: "power3.inOut", duration: TRANSITION_DURATION }, deactStart);
+            tl.to(descWrapEl, { height: 0, ease: "power3.inOut", duration: TRANSITION_DURATION }, deactStart);
+            tl.to(descTextEl, {
+              opacity: 0,
+              filter: "blur(10px)",
+              y: 10,
+              ease: "power3.inOut",
+              duration: TRANSITION_DURATION,
+            }, deactStart);
+          }
+        });
+
+        // Handle resize offset recalculation
+        ScrollTrigger.addEventListener("refresh", () => {
+          offsetPx = Math.max(
+            window.innerHeight * ENTRANCE_OFFSET_VH_FRACTION,
+            ENTRANCE_OFFSET_MIN_PX
+          );
+        });
       });
 
       mm.add("(max-width: 768px)", () => {
@@ -213,7 +208,7 @@ export default function WhyHackX() {
       className="relative w-full bg-transparent text-[#FAF8F5] py-20 md:py-0"
     >
       <div className="max-w-[1300px] mx-auto w-full flex flex-col md:flex-row items-start justify-center px-6 md:px-12 md:pl-24 lg:pl-36 gap-16 md:gap-24 lg:gap-32">
-        {/* Left Column: Sticky Title (unchanged) */}
+        {/* Left Column: Sticky Title */}
         <div className="w-full md:w-auto md:sticky md:top-0 md:h-screen flex items-center justify-start select-none flex-shrink-0">
           <div className="flex items-stretch gap-6 md:gap-8">
             <div className="w-[3px] bg-white/10 rounded-full relative overflow-hidden flex-shrink-0 my-[-24px]">
@@ -222,10 +217,13 @@ export default function WhyHackX() {
                 className="absolute top-0 left-0 w-full h-full bg-[#8c19be] shadow-[0_0_15px_#ff7695] origin-top"
               />
             </div>
-            <div className="flex flex-col font-anton tracking-normal uppercase leading-[0.9] text-[10vw] md:text-[6.66vw] text-white scale-x-[0.9] origin-left">
+            <div className="flex flex-col font-anton tracking-normal uppercase leading-[0.9] text-[7vw] md:text-[4vw] text-white scale-x-[0.9] origin-left">
               <span>WHY</span>
-              <span>CHOOSE</span>
-              <span>HACKX?</span>
+              <span>SHOULD</span>
+              <span>YOU</span>
+              <span>PARTICIPATE</span>
+              <span>IN MUJ</span>
+              <span>HACKX 4.0?</span>
             </div>
           </div>
         </div>
@@ -233,38 +231,54 @@ export default function WhyHackX() {
         {/* Right Column: tall scroll spacer that pins the stage below it */}
         <div
           ref={spacerRef}
-          className={`${styles.scrollSpacer} relative w-full md:w-[600px] flex-shrink-0`}
+          className="relative w-full md:flex-grow md:max-w-[600px] flex-shrink-0 max-md:!h-auto"
           style={{ height: `${TOTAL_VH}vh` }}
         >
           <div
-            className={`${styles.stage} md:sticky md:top-0 md:h-screen w-full flex flex-col justify-center items-start gap-5 md:gap-6 py-16 md:py-0`}
+            className="relative md:sticky md:top-0 md:h-screen w-full flex flex-col justify-start pt-[12vh] md:pt-[25vh] items-start gap-5 md:gap-6 py-16 md:py-0"
           >
             {ITEMS.map((item, i) => {
-              const expanded = hoveredIndex !== null ? hoveredIndex === i : activeIndex === i;
-
               return (
                 <div
                   key={item.id}
                   ref={(el) => {
                     itemRefs.current[i] = el;
                   }}
-                  className={`${styles.itemWrap} w-full`}
-                  onMouseEnter={() => setHoveredIndex(i)}
-                  onMouseLeave={() => setHoveredIndex(null)}
+                  className="w-full translate-y-0 md:translate-y-[60vh] will-change-transform"
                 >
                   <h3
-                    className={`${styles.title} font-sans font-semibold uppercase tracking-[-0.02em] text-xl md:text-2xl lg:text-[2rem] leading-snug cursor-default ${
-                      expanded ? "text-[#ff7695] opacity-100" : "text-[#ff7695] opacity-50"
-                    }`}
-                    style={{ wordSpacing: "0.06em" }}
+                    ref={(el) => {
+                      titleRefs.current[i] = el;
+                    }}
+                    className="font-sans font-semibold uppercase tracking-[-0.02em] text-xl md:text-2xl lg:text-[2rem] leading-snug cursor-default text-[#ff7695] max-md:!opacity-100"
+                    style={{
+                      opacity: i === 0 ? 1 : 0.5,
+                      wordSpacing: "0.06em",
+                    }}
                   >
                     {item.title}
                   </h3>
 
-                  <div className={styles.cardDesc} data-expanded={expanded}>
-                    <div className={styles.cardDescInner} data-expanded={expanded}>
+                  <div
+                    ref={(el) => {
+                      descWrapRefs.current[i] = el;
+                    }}
+                    className="overflow-hidden max-md:!h-auto"
+                    style={{
+                      height: i === 0 ? "auto" : 0,
+                    }}
+                  >
+                    <div className="overflow-hidden min-h-0">
                       <p
-                        className={`${styles.descText} pt-3 md:pt-4 font-sans font-normal text-white/90 text-base md:text-lg lg:text-xl leading-relaxed max-w-[600px]`}
+                        ref={(el) => {
+                          descTextRefs.current[i] = el;
+                        }}
+                        className="pt-3 md:pt-4 font-sans font-normal text-white/90 text-base md:text-lg lg:text-xl leading-relaxed max-w-[600px] opacity-0 blur-md translate-y-2 md:opacity-0 md:blur-md md:translate-y-2 max-md:!opacity-100 max-md:!blur-none max-md:!transform-none"
+                        style={{
+                          opacity: i === 0 ? 1 : 0,
+                          filter: i === 0 ? "none" : "blur(10px)",
+                          transform: i === 0 ? "none" : "translateY(10px)",
+                        }}
                       >
                         {item.description}
                       </p>

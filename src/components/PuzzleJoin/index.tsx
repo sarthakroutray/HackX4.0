@@ -95,7 +95,7 @@ export default function PuzzleJoin() {
 
       {/* Title & Heading */}
       <div className="relative z-10 text-center mb-12 max-w-2xl px-4 flex flex-col items-center">
-        <h2 className="font-sans font-black text-3xl md:text-5xl uppercase tracking-tight text-white leading-[1.15]">
+        <h2 className="font-sans font-black text-3xl md:text-5xl uppercase tracking-wide text-white leading-[1.15]">
           BECOME THE CAMPUS AMBASSADOR!
         </h2>
       </div>

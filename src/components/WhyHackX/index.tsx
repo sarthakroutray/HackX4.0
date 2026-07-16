@@ -217,10 +217,13 @@ export default function WhyHackX() {
                 className="absolute top-0 left-0 w-full h-full bg-[#8c19be] shadow-[0_0_15px_#ff7695] origin-top"
               />
             </div>
-            <div className="flex flex-col font-anton tracking-normal uppercase leading-[0.9] text-[10vw] md:text-[6.66vw] text-white scale-x-[0.9] origin-left">
+            <div className="flex flex-col font-anton tracking-normal uppercase leading-[0.9] text-[7vw] md:text-[4vw] text-white scale-x-[0.9] origin-left">
               <span>WHY</span>
-              <span>CHOOSE</span>
-              <span>HACKX?</span>
+              <span>SHOULD</span>
+              <span>YOU</span>
+              <span>PARTICIPATE</span>
+              <span>IN MUJ</span>
+              <span>HACKX 4.0?</span>
             </div>
           </div>
         </div>

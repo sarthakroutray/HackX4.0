@@ -2,6 +2,7 @@
 
 import React, { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import NetflixCurtainBackground from "@/components/NetflixCurtainBackground/NetflixCurtainBackground";
 
 const InstagramIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -137,28 +138,7 @@ export default function Team() {
     <div ref={containerRef} className="relative" style={{ height: "700vh" }}>
 
       <div className="sticky top-0 w-full h-screen overflow-hidden bg-transparent">
-        {/* ── Curtain glows commented out – using FluidShader background instead ── */}
-        {/*
-        <motion.div
-          className="absolute inset-y-0 left-0 w-[40vw] md:w-[35vw] pointer-events-none select-none z-0"
-          style={{
-            background:
-              "linear-gradient(to right, #000000 0%, #080014 5%, #23004a 12%, #5000a3 20%, #7801FF 28%, #D242D7 34%, #B86EF9 38%, #E1E1F5 42%, #B86EF9 48%, #D242D7 55%, #7801FF 63%, #23004a 72%, #080014 82%, #090416 100%)",
-            filter: "blur(18px) contrast(1.15) saturate(1.3)",
-            opacity: curtainOpacity,
-          }}
-        />
-        <motion.div
-          className="absolute inset-y-0 right-0 w-[40vw] md:w-[35vw] pointer-events-none select-none z-0"
-          style={{
-            background:
-              "linear-gradient(to left, #000000 0%, #080014 5%, #23004a 12%, #5000a3 20%, #7801FF 28%, #D242D7 34%, #B86EF9 38%, #E1E1F5 42%, #B86EF9 48%, #D242D7 55%, #7801FF 63%, #23004a 72%, #080014 82%, #090416 100%)",
-            filter: "blur(18px) contrast(1.15) saturate(1.3)",
-            opacity: curtainOpacity,
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#090416]/40 to-[#090416]/90 pointer-events-none z-0" />
-        */}
+        <NetflixCurtainBackground scrollYProgress={scrollYProgress} />
 
         <motion.div
           className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 md:px-12 select-none z-10"

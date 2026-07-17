@@ -175,6 +175,7 @@ export default function FluidShaderBackground() {
   const logoContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (pathname === "/team") return;
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -278,7 +279,7 @@ export default function FluidShaderBackground() {
       gl.deleteShader(vertexShader);
       gl.deleteShader(fragmentShader);
     };
-  }, []); // WebGL initialized once on component mount
+  }, [pathname]); // Re-initialize WebGL when pathname changes
 
   /* Scroll zoom for team page - optimized using direct DOM manipulation to bypass React render passes */
   useEffect(() => {
@@ -429,6 +430,8 @@ export default function FluidShaderBackground() {
       </svg>
     </>
   );
+
+  if (pathname === "/team") return null;
 
   return (
     <div

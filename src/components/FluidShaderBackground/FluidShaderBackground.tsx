@@ -175,7 +175,7 @@ export default function FluidShaderBackground() {
   const logoContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (pathname === "/team") return;
+    if (pathname === "/team" || pathname === "/test-shader") return;
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -288,7 +288,7 @@ export default function FluidShaderBackground() {
     const canvas = canvasRef.current;
     if (!container) return;
 
-    if (pathname !== "/team") {
+    if (pathname !== "/team" && pathname !== "/test-shader") {
       container.style.opacity = "1";
       if (logoContainer) {
         logoContainer.style.transform = "scale(1)";
@@ -431,7 +431,7 @@ export default function FluidShaderBackground() {
     </>
   );
 
-  if (pathname === "/team") return null;
+  if (pathname === "/team" || pathname === "/test-shader") return null;
 
   return (
     <div

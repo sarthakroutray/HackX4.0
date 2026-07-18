@@ -12,7 +12,7 @@ export default function Footer() {
     setYear(new Date().getFullYear().toString());
   }, []);
 
-  if (pathname === "/stats") return null;
+  if (pathname === "/stats" || pathname === "/test-shader") return null;
 
   return (
     <footer className={styles["site-footer"]}>

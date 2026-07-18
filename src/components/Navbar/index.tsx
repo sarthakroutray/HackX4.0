@@ -304,19 +304,6 @@ export default function Navbar() {
           </span>
         </button>
 
-        <div className="pointer-events-auto absolute z-10 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 mix-blend-difference">
-          <Link href="/">
-            <img
-              src="/assets/logos/HACKX%20White@2x.png"
-              alt="HACKX Logo"
-              className="h-8 md:h-11 w-auto hover:opacity-80 transition-opacity"
-              style={{
-                filter: "hue-rotate(var(--logo-hue-rotate, 0deg))",
-              }}
-            />
-          </Link>
-        </div>
-
         <a
           href="#register"
           className="pointer-events-auto relative z-10 group/btn font-sans text-xs md:text-sm font-normal tracking-tight text-white hover:opacity-85 transition-opacity flex items-center gap-1.5 mix-blend-difference"

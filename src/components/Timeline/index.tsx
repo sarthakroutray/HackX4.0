@@ -2,6 +2,7 @@
 
 import React, { useRef, useState, useEffect } from "react";
 import { motion, useMotionValue, useTransform, useSpring } from "framer-motion";
+import { useLenis } from "lenis/react";
 
 const milestones = [
   {
@@ -90,6 +91,105 @@ export default function Timeline() {
       clearTimeout(timer);
     };
   }, [mounted, scrollYProgress]);
+
+  // Scroll-snapping: stop at each milestone checkpoint step by step
+  const lenis = useLenis();
+  const isSnappingRef = useRef(false);
+  const activeIndexRef = useRef(0);
+  const cooldownRef = useRef(false);
+
+  useEffect(() => {
+    if (!mounted) return;
+
+    // Compute the document scroll position that centers a given milestone's dot in the viewport
+    const getTargetScrollY = (idx: number) => {
+      if (!containerRef.current) return 0;
+      const rect = containerRef.current.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const totalDist = rect.height;
+      const containerTop = rect.top + window.scrollY;
+      const milestoneProgress = ((idx + 0.5) * 1000) / 5500;
+      return milestoneProgress * totalDist - viewportHeight / 2 + containerTop;
+    };
+
+    // Find the milestone index nearest to the current scroll position
+    const getNearestIndex = () => {
+      const currentY = window.scrollY;
+      let nearestIdx = 0;
+      let nearestDist = Infinity;
+      milestones.forEach((_, idx) => {
+        const dist = Math.abs(getTargetScrollY(idx) - currentY);
+        if (dist < nearestDist) {
+          nearestDist = dist;
+          nearestIdx = idx;
+        }
+      });
+      return nearestIdx;
+    };
+
+    const goToIndex = (idx: number) => {
+      const clamped = Math.max(0, Math.min(milestones.length - 1, idx));
+      activeIndexRef.current = clamped;
+      const target = getTargetScrollY(clamped);
+      isSnappingRef.current = true;
+      if (lenis) {
+        lenis.scrollTo(target, {
+          duration: 1,
+          easing: (t: number) => 1 - Math.pow(1 - t, 3),
+          onComplete: () => {
+            isSnappingRef.current = false;
+          },
+        });
+      } else {
+        window.scrollTo({ top: target, behavior: "smooth" });
+        setTimeout(() => (isSnappingRef.current = false), 800);
+      }
+    };
+
+    // Is the timeline section currently the focus of the viewport?
+    const isSectionActive = () => {
+      if (!containerRef.current) return false;
+      const rect = containerRef.current.getBoundingClientRect();
+      const vh = window.innerHeight;
+      return rect.top <= vh * 0.5 && rect.bottom >= vh * 0.5;
+    };
+
+    const handleWheel = (e: WheelEvent) => {
+      if (!isSectionActive()) return;
+
+      const direction = e.deltaY > 0 ? 1 : -1;
+
+      // Allow the page to scroll away normally past the first/last checkpoint
+      const nearest = getNearestIndex();
+      const atEdge =
+        (direction > 0 && nearest >= milestones.length - 1) ||
+        (direction < 0 && nearest <= 0);
+      if (atEdge && !isSnappingRef.current) return;
+
+      // Take over scrolling entirely: block Lenis and native scroll for this gesture
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+
+      if (cooldownRef.current || isSnappingRef.current) return;
+
+      cooldownRef.current = true;
+      activeIndexRef.current = nearest;
+      goToIndex(activeIndexRef.current + direction);
+
+      // Lock further stepping until this gesture's momentum settles
+      setTimeout(() => {
+        cooldownRef.current = false;
+      }, 900);
+    };
+
+    // Capture phase + non-passive so we run before Lenis and can cancel the event
+    window.addEventListener("wheel", handleWheel, { passive: false, capture: true });
+
+    return () => {
+      window.removeEventListener("wheel", handleWheel, { capture: true } as any);
+    };
+  }, [mounted, lenis]);
 
   // Map scroll progress to the Y position along the SVG viewBox (0 to 5500)
   const yPosition = useTransform(progressSpring, [0, 1], [0, 5500], { clamp: true });

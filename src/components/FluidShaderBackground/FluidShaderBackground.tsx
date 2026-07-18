@@ -3,6 +3,10 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const VERTEX_SHADER_SOURCE = `
   attribute vec2 position;
@@ -18,6 +22,8 @@ const FRAGMENT_SHADER_SOURCE = `
 
   uniform float uTime;
   uniform vec2 uResolution;
+  uniform float uZoom;
+  uniform float uColorTransition;
   varying vec2 vUv;
 
   // Smooth minimum for organic shape merging
@@ -93,7 +99,7 @@ const FRAGMENT_SHADER_SOURCE = `
     vec2 p = vUv - 0.5;
     float aspect = uResolution.x / uResolution.y;
     p.x *= aspect;
-    p *= 1.25; // Zoom out to original nice size to prevent excessive screen-edge stretching
+    p *= uZoom; // Zoom controlled dynamically (default: 1.25, zoom in: 0.85)
 
     // 2. Define breathing cycle biased to keep the strokes extended outside the X longer
     float cycle = 0.88 + 0.12 * sin(uTime * 0.35);
@@ -138,10 +144,22 @@ const FRAGMENT_SHADER_SOURCE = `
     vec3 colBright     = vec3(0.47, 0.00, 1.00); // #7801ff (Vibrant electric purple)
     vec3 colCore       = vec3(0.68, 0.45, 0.95); // #ae73f2 (Soft vibrant lavender core)
 
+    // Vibrant Electric Green / Emerald / Teal / Cyan palette for SDG section
+    vec3 colDeepGreen  = vec3(0.00, 0.08, 0.05); // #00140d (Very deep emerald/teal background)
+    vec3 colGreen      = vec3(0.00, 0.40, 0.25); // #006640 (Rich glowing green)
+    vec3 colTeal       = vec3(0.00, 0.65, 0.50); // #00a680 (Electric teal)
+    vec3 colCyan       = vec3(0.20, 0.90, 0.75); // #33e6bf (Luminous mint/cyan core)
+
+    // Blend palettes based on transition uniform
+    vec3 mixedDeep     = mix(colDeepPurple, colDeepGreen, uColorTransition);
+    vec3 mixedPurple   = mix(colPurple, colGreen, uColorTransition);
+    vec3 mixedBright   = mix(colBright, colTeal, uColorTransition);
+    vec3 mixedCore     = mix(colCore, colCyan, uColorTransition);
+
     // Dynamic color wave shifting (matching the SVG logo gradient rotation effect)
     float wave = sin(uTime * 0.3) * 0.5 + 0.5;
-    vec3 dynamicBright = mix(colBright, vec3(0.32, 0.0, 0.78), wave * 0.2);
-    vec3 dynamicCyan = mix(colCore, vec3(0.47, 0.0, 1.0), wave * 0.2);
+    vec3 dynamicBright = mix(mixedBright, mixedPurple, wave * 0.2);
+    vec3 dynamicCyan = mix(mixedCore, mixedBright, wave * 0.2);
 
     // Blending weights
     float mDeepBlue = smoothstep(0.01, 0.22, glow);
@@ -154,8 +172,8 @@ const FRAGMENT_SHADER_SOURCE = `
 
     // Mix colors over transparent base
     vec3 finalColor = vec3(0.0);
-    finalColor = mix(finalColor, colDeepPurple, mDeepBlue);
-    finalColor = mix(finalColor, colPurple, mBlue);
+    finalColor = mix(finalColor, mixedDeep, mDeepBlue);
+    finalColor = mix(finalColor, mixedPurple, mBlue);
     finalColor = mix(finalColor, dynamicBright, mBright);
     finalColor = mix(finalColor, dynamicCyan, mCyan);
 
@@ -173,6 +191,7 @@ export default function FluidShaderBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const logoContainerRef = useRef<HTMLDivElement>(null);
+  const shaderParams = useRef({ zoom: 1.25, colorTransition: 0.0 });
 
   useEffect(() => {
     if (pathname === "/team" || pathname === "/test-shader") return;
@@ -234,6 +253,8 @@ export default function FluidShaderBackground() {
 
     const timeLoc = gl.getUniformLocation(program, "uTime");
     const resolutionLoc = gl.getUniformLocation(program, "uResolution");
+    const zoomLoc = gl.getUniformLocation(program, "uZoom");
+    const colorTransitionLoc = gl.getUniformLocation(program, "uColorTransition");
 
     let animationFrameId: number;
     const startTime = performance.now();
@@ -259,6 +280,8 @@ export default function FluidShaderBackground() {
     const render = () => {
       const elapsedSeconds = (performance.now() - startTime) / 1000;
       gl.uniform1f(timeLoc, elapsedSeconds);
+      gl.uniform1f(zoomLoc, shaderParams.current.zoom);
+      gl.uniform1f(colorTransitionLoc, shaderParams.current.colorTransition);
 
       gl.clearColor(0.0, 0.0, 0.0, 0.0);
       gl.clear(gl.COLOR_BUFFER_BIT);
@@ -307,7 +330,7 @@ export default function FluidShaderBackground() {
       const progress = window.scrollY / scrollableHeight;
       const scaleProgress = Math.min(Math.max(progress / 0.6, 0), 1);
       const scale = 1 + scaleProgress * 44;
-      
+
       let logoOpacity = 1;
       if (progress > 0.3) {
         logoOpacity = 1 - Math.min((progress - 0.3) / 0.25, 1);
@@ -333,12 +356,190 @@ export default function FluidShaderBackground() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [pathname]);
 
+  /* Scroll transition for SDG section on homepage */
+  useEffect(() => {
+    if (pathname !== "/" && pathname !== "") return;
+
+    let tl: gsap.core.Timeline | null = null;
+    let active = true;
+
+    const initScrollTrigger = () => {
+      if (!active) return;
+      const sdgSection = document.getElementById("sdg-section");
+      if (!sdgSection) {
+        setTimeout(initScrollTrigger, 100);
+        return;
+      }
+
+      // Reset initial values
+      shaderParams.current = { zoom: 1.25, colorTransition: 0.0 };
+
+      document.documentElement.style.setProperty("--logo-hue-rotate", "0deg");
+      document.documentElement.style.setProperty("--bg-gradient-from", "#1f093f");
+      document.documentElement.style.setProperty("--bg-gradient-via", "#090416");
+      document.documentElement.style.setProperty("--bg-gradient-to", "#04020a");
+
+      const logoContainer = logoContainerRef.current;
+      if (logoContainer) {
+        logoContainer.style.setProperty("--x-color-stop-0", "#5200c7");
+        logoContainer.style.setProperty("--x-color-stop-33", "#ae73f2");
+        logoContainer.style.setProperty("--x-color-stop-66", "#7801ff");
+        logoContainer.style.setProperty("--x-color-stop-100", "#5200c7");
+        logoContainer.style.setProperty("--x-shadow-1", "rgba(174, 115, 242, 0.80)");
+        logoContainer.style.setProperty("--x-shadow-2", "rgba(82, 0, 199, 0.70)");
+      }
+
+      // Animatable objects to handle precise color and degree interpolation natively in GSAP
+      const bgColors = {
+        from: "#1f093f",
+        via: "#090416",
+        to: "#04020a"
+      };
+
+      const logoColors = {
+        stop0: "#5200c7",
+        stop33: "#ae73f2",
+        stop66: "#7801ff",
+        stop100: "#5200c7",
+        shadow1: "rgba(174, 115, 242, 0.80)",
+        shadow2: "rgba(82, 0, 199, 0.70)"
+      };
+
+      const logoHue = { rotate: 0 };
+
+      tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sdgSection,
+          start: "top bottom",
+          end: () => "+=" + (window.innerHeight * 5.6),
+          scrub: 0.5,
+          invalidateOnRefresh: true,
+          refreshPriority: -10, // Calculate after layout-altering ScrollTriggers (like Stats pin spacing)
+        }
+      });
+
+      // Transition IN (0.0 to 1.0)
+      tl.to(shaderParams.current, {
+        zoom: 0.85,
+        colorTransition: 1.0,
+        duration: 1,
+        ease: "power1.out"
+      }, 0);
+
+      tl.to(logoHue, {
+        rotate: 140,
+        duration: 1,
+        ease: "power1.out",
+        onUpdate: () => {
+          document.documentElement.style.setProperty("--logo-hue-rotate", `${logoHue.rotate}deg`);
+        }
+      }, 0);
+
+      tl.to(bgColors, {
+        from: "#001c13",
+        via: "#000806",
+        to: "#000403",
+        duration: 1,
+        ease: "power1.out",
+        onUpdate: () => {
+          document.documentElement.style.setProperty("--bg-gradient-from", bgColors.from);
+          document.documentElement.style.setProperty("--bg-gradient-via", bgColors.via);
+          document.documentElement.style.setProperty("--bg-gradient-to", bgColors.to);
+        }
+      }, 0);
+
+      if (logoContainer) {
+        tl.to(logoColors, {
+          stop0: "#005035",
+          stop33: "#30e5c8",
+          stop66: "#00b590",
+          stop100: "#005035",
+          shadow1: "rgba(48, 229, 200, 0.80)",
+          shadow2: "rgba(0, 80, 53, 0.70)",
+          duration: 1,
+          ease: "power1.out",
+          onUpdate: () => {
+            logoContainer.style.setProperty("--x-color-stop-0", logoColors.stop0);
+            logoContainer.style.setProperty("--x-color-stop-33", logoColors.stop33);
+            logoContainer.style.setProperty("--x-color-stop-66", logoColors.stop66);
+            logoContainer.style.setProperty("--x-color-stop-100", logoColors.stop100);
+            logoContainer.style.setProperty("--x-shadow-1", logoColors.shadow1);
+            logoContainer.style.setProperty("--x-shadow-2", logoColors.shadow2);
+          }
+        }, 0);
+      }
+
+      // Transition OUT (4.6 to 5.6)
+      tl.to(shaderParams.current, {
+        zoom: 1.25,
+        colorTransition: 0.0,
+        duration: 1,
+        ease: "power1.in"
+      }, 4.6);
+
+      tl.to(logoHue, {
+        rotate: 0,
+        duration: 1,
+        ease: "power1.in",
+        onUpdate: () => {
+          document.documentElement.style.setProperty("--logo-hue-rotate", `${logoHue.rotate}deg`);
+        }
+      }, 4.6);
+
+      tl.to(bgColors, {
+        from: "#1f093f",
+        via: "#090416",
+        to: "#04020a",
+        duration: 1,
+        ease: "power1.in",
+        onUpdate: () => {
+          document.documentElement.style.setProperty("--bg-gradient-from", bgColors.from);
+          document.documentElement.style.setProperty("--bg-gradient-via", bgColors.via);
+          document.documentElement.style.setProperty("--bg-gradient-to", bgColors.to);
+        }
+      }, 4.6);
+
+      if (logoContainer) {
+        tl.to(logoColors, {
+          stop0: "#5200c7",
+          stop33: "#ae73f2",
+          stop66: "#7801ff",
+          stop100: "#5200c7",
+          shadow1: "rgba(174, 115, 242, 0.80)",
+          shadow2: "rgba(82, 0, 199, 0.70)",
+          duration: 1,
+          ease: "power1.in",
+          onUpdate: () => {
+            logoContainer.style.setProperty("--x-color-stop-0", logoColors.stop0);
+            logoContainer.style.setProperty("--x-color-stop-33", logoColors.stop33);
+            logoContainer.style.setProperty("--x-color-stop-66", logoColors.stop66);
+            logoContainer.style.setProperty("--x-color-stop-100", logoColors.stop100);
+            logoContainer.style.setProperty("--x-shadow-1", logoColors.shadow1);
+            logoContainer.style.setProperty("--x-shadow-2", logoColors.shadow2);
+          }
+        }, 4.6);
+      }
+    };
+
+    initScrollTrigger();
+
+    return () => {
+      active = false;
+      if (tl) {
+        tl.revert();
+      }
+    };
+  }, [pathname]);
+
   const content = (
     <>
       {/* 1. Deep premium CSS gradient background layer */}
       <div
-        className="pointer-events-none fixed inset-0 bg-[#090416] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#1f093f] via-[#090416] to-[#04020a]"
-        style={{ zIndex: -20 }}
+        className="pointer-events-none fixed inset-0"
+        style={{
+          zIndex: -20,
+          background: "radial-gradient(ellipse at center, var(--bg-gradient-from, #1f093f) 0%, var(--bg-gradient-via, #090416) 60%, var(--bg-gradient-to, #04020a) 100%)",
+        }}
       />
 
       {/* 2. SVG Logo in the middle. Filled with an animated electric gradient stop-set. */}
@@ -349,7 +550,13 @@ export default function FluidShaderBackground() {
           zIndex: -10,
           transformOrigin: "center center",
           willChange: "transform",
-        }}
+          "--x-color-stop-0": "#5200c7",
+          "--x-color-stop-33": "#ae73f2",
+          "--x-color-stop-66": "#7801ff",
+          "--x-color-stop-100": "#5200c7",
+          "--x-shadow-1": "rgba(174, 115, 242, 0.80)",
+          "--x-shadow-2": "rgba(82, 0, 199, 0.70)",
+        } as React.CSSProperties}
       >
         <svg
           viewBox="0 0 895 1000"
@@ -360,15 +567,15 @@ export default function FluidShaderBackground() {
             height: "28vh",
             width: "25.06vh",
             opacity: 1.0,
-            filter: "drop-shadow(0 0 25px rgba(174, 115, 242, 0.80)) drop-shadow(0 0 50px rgba(82, 0, 199, 0.70)) drop-shadow(0 0 15px rgba(255, 255, 255, 0.50))",
+            filter: "drop-shadow(0 0 25px var(--x-shadow-1, rgba(174, 115, 242, 0.80))) drop-shadow(0 0 50px var(--x-shadow-2, rgba(82, 0, 199, 0.70))) drop-shadow(0 0 15px rgba(255, 255, 255, 0.50))",
           }}
         >
           <defs>
             <linearGradient id="movingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#5200c7" />
-              <stop offset="33%" stopColor="#ae73f2" />
-              <stop offset="66%" stopColor="#7801ff" />
-              <stop offset="100%" stopColor="#5200c7" />
+              <stop offset="0%" stopColor="var(--x-color-stop-0, #5200c7)" />
+              <stop offset="33%" stopColor="var(--x-color-stop-33, #ae73f2)" />
+              <stop offset="66%" stopColor="var(--x-color-stop-66, #7801ff)" />
+              <stop offset="100%" stopColor="var(--x-color-stop-100, #5200c7)" />
               <animateTransform
                 attributeName="gradientTransform"
                 type="rotate"

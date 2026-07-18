@@ -383,7 +383,7 @@ export default function SdgComponent() {
   }, { scope: sectionRef, dependencies: [isReady], revertOnUpdate: true });
 
   return (
-    <section ref={sectionRef} className="w-full h-screen relative flex items-center bg-transparent select-none opacity-0">
+    <section id="sdg-section" ref={sectionRef} className="w-full h-screen relative flex items-center bg-transparent select-none opacity-0">
 
 
       {/* Brand Stack (Arc Motion Area) */}

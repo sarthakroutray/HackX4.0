@@ -8,6 +8,10 @@
   --color-magenta: #D242D7;
   --color-white: #FFFFFF;
   --color-bg: #090416;
+  --logo-hue-rotate: 0deg;
+  --bg-gradient-from: #1f093f;
+  --bg-gradient-via: #090416;
+  --bg-gradient-to: #04020a;
 }
 
 * {

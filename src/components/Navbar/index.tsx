@@ -310,6 +310,9 @@ export default function Navbar() {
               src="/assets/logos/HACKX%20White@2x.png"
               alt="HACKX Logo"
               className="h-8 md:h-11 w-auto hover:opacity-80 transition-opacity"
+              style={{
+                filter: "hue-rotate(var(--logo-hue-rotate, 0deg))",
+              }}
             />
           </Link>
         </div>

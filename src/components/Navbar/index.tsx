@@ -260,6 +260,8 @@ export default function Navbar() {
 
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
+  if (pathname === "/test-shader") return null;
+
   return (
     <>
       {/* Sleek Floating Header Bar */}

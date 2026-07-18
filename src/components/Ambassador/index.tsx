@@ -117,7 +117,7 @@ export default function Ambassador() {
             <div className="overflow-hidden py-1 md:py-2">
               <motion.span
                 variants={lineVariants}
-                className="block origin-bottom text-transparent bg-clip-text bg-gradient-to-r from-[#D242D7] via-[#B86EF9] to-white/95 font-black shadow-sm"
+                className="block origin-bottom text-transparent bg-clip-text bg-gradient-to-r from-[#D242D7] via-[#B86EF9] to-white/95 font-black"
               >
                 OF MUJ HACKX 4.0!
               </motion.span>

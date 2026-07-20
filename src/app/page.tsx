@@ -4,6 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import Stats from "@/components/Stats";
 import SdgComponent from "@/components/sdg";
+import SdgMarquee from "@/components/SdgMarquee";
 
 export default function Home() {
   // Smooth staggered entry animations
@@ -103,8 +104,10 @@ export default function Home() {
           </motion.div>
         </div>
 
-
-
+        {/* Absolute positioned SDG Marquee at the bottom of the hero */}
+        <div className="absolute bottom-6 md:bottom-10 left-0 w-full z-20">
+          <SdgMarquee />
+        </div>
       </div>
 
       <Stats />

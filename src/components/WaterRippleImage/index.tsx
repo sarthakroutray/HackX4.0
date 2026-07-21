@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Image from "next/image";
 
 type WaterRippleImageProps = {
   imageUrl: string;
@@ -21,12 +22,27 @@ type RippleElement = {
   ripples: (command: RippleOptions | string, ...args: number[]) => void;
 };
 
+let rippleDependencies: Promise<any> | undefined;
+
+function loadRippleDependencies() {
+  rippleDependencies ??= Promise.all([import("jquery"), import("jquery.ripples")])
+    .then(([jqueryModule]) => jqueryModule.default);
+  return rippleDependencies;
+}
+
 /**
  * React wrapper around jquery.ripples' WebGL water simulation.
  * Only the currently hovered card has an active canvas.
  */
 export function WaterRippleImage({ imageUrl, isActive, priority = false }: WaterRippleImageProps) {
   const elementRef = useRef<HTMLDivElement>(null);
+  const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
+
+  // Load the shared plugin while initial gallery images are loading, so the
+  // first hover after scrolling does not wait on a dynamic import.
+  useEffect(() => {
+    if (priority) void loadRippleDependencies();
+  }, [priority]);
 
   useEffect(() => {
     if (!isActive) return;
@@ -38,11 +54,9 @@ export function WaterRippleImage({ imageUrl, isActive, priority = false }: Water
     let rippleArea: RippleElement | undefined;
 
     const initialize = async () => {
-      const jqueryModule = await import("jquery");
-      await import("jquery.ripples");
+      const $ = await loadRippleDependencies();
       if (disposed) return;
 
-      const $ = jqueryModule.default;
       rippleArea = $(element) as unknown as RippleElement;
       rippleArea.ripples({
         imageUrl,
@@ -57,6 +71,15 @@ export function WaterRippleImage({ imageUrl, isActive, priority = false }: Water
         crossOrigin: "anonymous",
       });
       rippleArea.ripples("play");
+
+      // The pointer may already be resting on the card when the canvas becomes
+      // ready. Seed the simulation immediately instead of waiting for another
+      // mousemove event.
+      const pointer = lastPointerRef.current;
+      if (pointer) {
+        const bounds = element.getBoundingClientRect();
+        rippleArea.ripples("drop", pointer.x - bounds.left, pointer.y - bounds.top, 24, 0.03);
+      }
     };
 
     // Only the image under the pointer owns a WebGL canvas. Initialising one
@@ -74,11 +97,22 @@ export function WaterRippleImage({ imageUrl, isActive, priority = false }: Water
       ref={elementRef}
       className="relative w-full overflow-hidden bg-cover bg-center"
       style={{ backgroundImage: isActive ? `url("${imageUrl}")` : undefined }}
+      onPointerEnter={(event) => {
+        lastPointerRef.current = { x: event.clientX, y: event.clientY };
+      }}
+      onPointerMove={(event) => {
+        lastPointerRef.current = { x: event.clientX, y: event.clientY };
+      }}
     >
-      <img
+      <Image
         src={imageUrl}
         alt=""
+        width={0}
+        height={0}
+        sizes="(max-width: 768px) 100vw, 550px"
+        unoptimized
         className={`pointer-events-none w-full ${isActive ? "opacity-0" : "opacity-100"}`}
+        style={{ height: "auto" }}
         loading={priority ? "eager" : "lazy"}
         fetchPriority={priority ? "high" : "low"}
         decoding="async"

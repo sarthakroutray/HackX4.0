@@ -17,6 +17,9 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
       lenisRef.current?.lenis?.raf(time * 1000);
     }
 
+    // GSAP's default lag smoothing rewrites timestamps after an expensive frame.
+    // Lenis then tries to catch up in visible steps instead of tracking input.
+    gsap.ticker.lagSmoothing(0);
     gsap.ticker.add(update);
 
     // Refresh ScrollTrigger to ensure accurate positions after Lenis initializes
@@ -33,11 +36,13 @@ export default function LenisProvider({ children }: { children: React.ReactNode 
       ref={lenisRef}
       autoRaf={false}
       options={{
-        duration: 1.2,
+        // Deliberately slow, cinematic scroll response.
+        duration: 1.55,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         orientation: "vertical",
         gestureOrientation: "vertical",
         smoothWheel: true,
+        wheelMultiplier: 0.8,
       }}
     >
       {children}

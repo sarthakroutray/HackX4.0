@@ -291,7 +291,7 @@ export default function FluidShaderBackground() {
       animationFrameId = requestAnimationFrame(render);
     };
 
-    render();
+    animationFrameId = requestAnimationFrame(render);
 
     return () => {
       window.removeEventListener("resize", resize);

@@ -1,20 +1,29 @@
 "use client";
 
-import { AnimatePresence, motion, useScroll, useVelocity, useTransform, useSpring } from "framer-motion";
-import { useState } from "react";
+import { AnimatePresence, motion, useInView, useScroll, useSpring, useTransform, useVelocity, type MotionValue } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import WaterRippleImage from "@/components/WaterRippleImage";
 
-const PROJECTS = [
-  {
-    id: "01",
-    title: "Sonic Identity",
-    category: "CGI Production",
-    image: "/assets/images/pic1_converted.avif",
-    description: "A speculative visual identity for sound, rhythm, and the intimate technology that carries it.",
-    hoverText: [
-      { text: "Powered to Play All Day", className: "text-[#faebac]" }
-    ],
-  },
+const getImageUrl = (imagePath: string) => {
+  if (!imagePath) return "";
+  if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+    return imagePath;
+  }
+  // Gallery cards never need the 5K-6K source files. The local WebP variants
+  // are capped at 1200px, which is sufficient for a 550px-wide card at 2x DPR.
+  return imagePath
+    .replace("/assets/images/", "/assets/images/gallery/")
+    .replace(/\.(avif|jpe?g)$/i, ".webp");
+};
+
+const NEUTRAL =
+  "polygon(0% 0%, 33.3% 0%, 66.7% 0%, 100% 0%, 100% 100%, 66.7% 100%, 33.3% 100%, 0% 100%)";
+const DOWN =
+  "polygon(0% 5%, 33.3% 0.4%, 66.7% 0.4%, 100% 5%, 100% 100%, 66.7% 99.6%, 33.3% 99.6%, 0% 100%)";
+const UP =
+  "polygon(0% 0%, 33.3% 4.6%, 66.7% 4.6%, 100% 0%, 100% 95%, 66.7% 99.6%, 33.3% 99.6%, 0% 95%)";
+
+const RAW_PROJECTS = [
   {
     id: "02",
     title: "Solar Archive",
@@ -156,17 +165,6 @@ const PROJECTS = [
     ],
   },
   {
-    id: "15",
-    title: "Light Wave",
-    category: "CGI Production",
-    image: "/assets/images/pic17_converted.avif",
-    description: "Raymarching visual study of glowing dynamic waves and particles.",
-    hoverText: [
-      { text: "Light ", className: "text-white" },
-      { text: "Wave", className: "text-[#faebac]" }
-    ],
-  },
-  {
     id: "16",
     title: "Monochrome Study",
     category: "Brand Design",
@@ -277,17 +275,6 @@ const PROJECTS = [
     ],
   },
   {
-    id: "26",
-    title: "Neural Resonance",
-    category: "Experiential",
-    image: "/assets/images/WhatsApp Image 2026-07-21 at 10.01.12.jpeg",
-    description: "Interactive lighting setups synchronized with real-time neural data.",
-    hoverText: [
-      { text: "Neural ", className: "text-white" },
-      { text: "Resonance", className: "text-[#faebac]" }
-    ],
-  },
-  {
     id: "27",
     title: "Chroma Field",
     category: "CGI Production",
@@ -309,37 +296,82 @@ const FILTERS = [
   ["Experiential", "6"],
 ];
 
-const NEUTRAL =
-  "polygon(0% 0%, 33.3% 0%, 66.7% 0%, 100% 0%, 100% 100%, 66.7% 100%, 33.3% 100%, 0% 100%)";
-const DOWN =
-  "polygon(0% 1.2%, 33.3% 0.13%, 66.7% 0.13%, 100% 1.2%, 100% 100%, 66.7% 99.87%, 33.3% 99.87%, 0% 100%)";
-const UP =
-  "polygon(0% 0%, 33.3% 1.07%, 66.7% 1.07%, 100% 0%, 100% 98.8%, 66.7% 99.13%, 33.3% 99.13%, 0% 98.8%)";
+const PROJECTS = RAW_PROJECTS.map((project) => ({
+  ...project,
+  image: getImageUrl(project.image),
+}));
+
+type Project = (typeof PROJECTS)[number];
+
+function GalleryCard({
+  project,
+  isActive,
+  isDimmed,
+  priority,
+  scrollClipPath,
+  onEnter,
+  onLeave,
+}: {
+  project: Project;
+  isActive: boolean;
+  isDimmed: boolean;
+  priority: boolean;
+  scrollClipPath: MotionValue<string>;
+  onEnter: () => void;
+  onLeave: () => void;
+}) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const isNearViewport = useInView(cardRef, { margin: "200px 0px", amount: 0 });
+
+  return (
+    <article className="mb-4 break-inside-avoid [contain:paint]">
+      <motion.div
+        ref={cardRef}
+        aria-label={project.title}
+        className="cursor-crosshair overflow-hidden bg-transparent transition-opacity duration-500 relative"
+        style={{
+          opacity: isDimmed ? 0.3 : 1,
+          clipPath: isNearViewport ? scrollClipPath : NEUTRAL,
+          WebkitClipPath: isNearViewport ? scrollClipPath : NEUTRAL,
+          transform: "translateZ(0)",
+          willChange: isNearViewport ? "clip-path" : "auto",
+        }}
+        onPointerEnter={onEnter}
+        onPointerLeave={onLeave}
+        onPointerCancel={onLeave}
+      >
+        <WaterRippleImage imageUrl={project.image} isActive={isActive} priority={priority} />
+      </motion.div>
+    </article>
+  );
+}
 
 export default function Home() {
   const [activeProject, setActiveProject] = useState(PROJECTS[0]);
   const [hoveredProject, setHoveredProject] = useState<typeof PROJECTS[0] | null>(null);
-  const { scrollYProgress, scrollY } = useScroll();
+  const { scrollY } = useScroll();
   const scrollVelocity = useVelocity(scrollY);
+  const smoothVelocity = useSpring(scrollVelocity, { damping: 60, stiffness: 380 });
+  const scrollClipPath = useTransform(smoothVelocity, [-120, 0, 120], [UP, NEUTRAL, DOWN]);
 
-  const smoothVelocity = useSpring(scrollVelocity, {
-    damping: 100,
-    stiffness: 200,
-  });
+  // A card can remain beneath the pointer while the document moves, so
+  // pointerleave is not guaranteed to run. Clear the overlay on the first
+  // scroll event without maintaining a scroll-linked animation graph.
+  useEffect(() => {
+    if (!hoveredProject) return;
 
-  const clipPathPolygon = useTransform(smoothVelocity, [-400, 0, 400], [UP, NEUTRAL, DOWN]);
+    const clearHover = () => setHoveredProject(null);
+    window.addEventListener("scroll", clearHover, { passive: true, once: true });
+    return () => window.removeEventListener("scroll", clearHover);
+  }, [hoveredProject]);
 
   if (typeof window !== "undefined") {
     window.history.scrollRestoration = "manual";
   }
 
   return (
-    <main className="min-h-screen overflow-x-clip bg-[#051236] text-[#f3f0e6]">
-      <motion.div
-        className="fixed bottom-0 left-0 top-0 z-50 w-1 origin-top bg-[#faebac]"
-        style={{ scaleY: scrollYProgress }}
-      />
-      <AnimatePresence mode="wait">
+    <main className="min-h-screen overflow-x-clip bg-transparent text-[#f3f0e6]">
+      <AnimatePresence initial={false}>
         <motion.h1
           key={activeProject.id + '-bg'}
           aria-hidden="true"
@@ -358,15 +390,15 @@ export default function Home() {
 
 
 
-      <AnimatePresence mode="wait">
+      <AnimatePresence initial={false}>
         {hoveredProject && (
           <motion.div
             key={hoveredProject.id + '-hover'}
             className="pointer-events-none fixed inset-0 z-40 flex items-center justify-center"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
           >
             <div className="w-full max-w-[1100px] px-6 text-center sm:px-10 lg:px-0">
               <h2 className="font-sans leading-none [font-size:clamp(2rem,6vw,5.5rem)] font-bold tracking-tight drop-shadow-2xl">
@@ -382,47 +414,19 @@ export default function Home() {
       <section className="relative z-20 mx-auto w-full max-w-[1100px] px-6 pb-28 pt-48 sm:px-10 lg:px-0">
         <div className="columns-1 gap-4 md:columns-2">
           {PROJECTS.map((project, index) => (
-            <motion.article
+            <GalleryCard
               key={project.id}
-              className="mb-4 break-inside-avoid"
-              initial={{ 
-                opacity: 0, 
-                y: (index < 3 || (index >= 6 && index < 9)) ? "100vh" : 200, 
-                scale: 0.95 
-              }}
-              animate={(index < 3 || (index >= 6 && index < 9)) ? { opacity: 1, y: 0, scale: 1 } : undefined}
-              whileInView={!(index < 3 || (index >= 6 && index < 9)) ? { opacity: 1, y: 0, scale: 1 } : undefined}
-              viewport={{ once: true, amount: 0.1 }}
-              transition={{ 
-                duration: 1.2, 
-                ease: [0.22, 1, 0.36, 1],
-                delay: (index < 3 || (index >= 6 && index < 9)) 
-                  ? ((index % 6) * 0.2 + (index < 6 ? 0 : 0.1)) 
-                  : 0 
-              }}
-            >
-              <motion.div
-                aria-label={project.title}
-                className="cursor-crosshair overflow-hidden bg-[#0d1424] transition-opacity duration-500 relative"
-                style={{ 
-                  opacity: hoveredProject && hoveredProject.id !== project.id ? 0.3 : 1,
-                  clipPath: clipPathPolygon,
-                  WebkitClipPath: clipPathPolygon,
-                  willChange: "clip-path",
-                }}
-                onMouseEnter={() => {
+              project={project}
+              isActive={hoveredProject?.id === project.id}
+              isDimmed={Boolean(hoveredProject && hoveredProject.id !== project.id)}
+              priority={index < 7}
+              scrollClipPath={scrollClipPath}
+              onEnter={() => {
                   setActiveProject(project);
                   setHoveredProject(project);
                 }}
-                onMouseLeave={() => setHoveredProject(null)}
-              >
-                <WaterRippleImage
-                  imageUrl={project.image}
-                  isActive={hoveredProject?.id === project.id}
-                  priority={index < 2}
-                />
-              </motion.div>
-            </motion.article>
+              onLeave={() => setHoveredProject(null)}
+            />
           ))}
         </div>
       </section>

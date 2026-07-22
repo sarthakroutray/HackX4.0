@@ -373,13 +373,7 @@ export default function Home() {
     };
   }, [selectedProject, closeLightbox]);
 
-  useEffect(() => {
-    if (!hoveredProject) return;
 
-    const clearHover = () => setHoveredProject(null);
-    window.addEventListener("scroll", clearHover, { passive: true, once: true });
-    return () => window.removeEventListener("scroll", clearHover);
-  }, [hoveredProject]);
 
   if (typeof window !== "undefined") {
     window.history.scrollRestoration = "manual";
@@ -387,23 +381,6 @@ export default function Home() {
 
   return (
     <main className="min-h-screen overflow-x-clip bg-transparent text-[#f3f0e6]">
-      <AnimatePresence initial={false}>
-        <motion.h1
-          key={activeProject.id + '-bg'}
-          aria-hidden="true"
-          className="pointer-events-none fixed inset-0 z-10 flex items-center justify-center px-4 text-center font-serif leading-none [font-size:clamp(5rem,14vw,10rem)]"
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -18 }}
-          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-          style={{ color: "transparent", WebkitTextStroke: "1px rgba(255,255,255,0.1)", mixBlendMode: "overlay" }}
-        >
-          {activeProject.title}
-        </motion.h1>
-      </AnimatePresence>
-
-
-
 
 
       <AnimatePresence initial={false}>
@@ -430,7 +407,8 @@ export default function Home() {
       <AnimatePresence>
         {selectedProject && (
           <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center"
+            className="fixed inset-0 z-50 flex items-center justify-center cursor-pointer"
+            onClick={closeLightbox}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
